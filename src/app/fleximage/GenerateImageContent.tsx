@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
 type ImageSize = '1440x900' | '1024x1024' | '1024x576' | '1024x768' | '512x1024' | '512x768' | '1280x960' | '960x1280' | '768x1366' | '768x512' | '1366x768' | '1344x576' | 'custom'
-type ModelType = 'flux-schnell' | 'flux-pro-max'
+type ModelType = 'flux' | 'flux-dev' | 'flux-pro'
 
 interface HistoryItem {
   imageUrl: string
@@ -45,12 +45,19 @@ const defaultSystemPrompt = `你是一位富有艺术感的Flux壁纸PROMPT生�
 4. 按重要性从高到低的顺序排列标签。
 5. 必须包含以下修饰词：large area blank, negative space composition, low saturation, simple colors, soft light, minimalist, clear background, clear, simple, less details, blank space, 1280*880, high quality, high definition, HUD`
 
+interface Config {
+  model: ModelType
+  size: ImageSize
+  customSize: string
+  systemPrompt: string
+}
+
 export default function GenerateImage() {
   const [query, setQuery] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [size, setSize] = useState<ImageSize>('1440x900')
   const [customSize, setCustomSize] = useState('')
-  const [model, setModel] = useState<ModelType>('flux-schnell')
+  const [model, setModel] = useState<ModelType>('flux')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showSettingsModal, setShowSettingsModal] = useState(false)
@@ -64,11 +71,11 @@ export default function GenerateImage() {
   const [totalPages, setTotalPages] = useState(1)
   const [selectedImage, setSelectedImage] = useState<HistoryItem | null>(null)
   const [imageLoading, setImageLoading] = useState(false)
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<Config>({
     model: 'flux',
     size: '1440x900',
     customSize: '',
-    systemPrompt: ''
+    systemPrompt: defaultSystemPrompt
   })
 
   useEffect(() => {
@@ -79,17 +86,27 @@ export default function GenerateImage() {
     try {
       const response = await fetch('/api/get-config')
       if (!response.ok) {
-        throw new Error('获取配置失败')
+        const errorData = await response.json()
+        throw new Error(errorData.error || '获取配置失败')
       }
-      const data = await response.json()
+      const data: Config = await response.json()
+      if (!data.model || !data.size) {
+        throw new Error('未找到用户配置')
+      }
       setConfig(data)
-      setModel(data.model)
-      setSize(data.size)
-      setCustomSize(data.customSize)
-      setSystemPrompt(data.systemPrompt)
+      setModel(data.model as ModelType)
+      setSize(data.size as ImageSize)
+      setCustomSize(data.customSize || '')
+      setSystemPrompt(data.systemPrompt || defaultSystemPrompt)
     } catch (error) {
       console.error('获取配置错误:', error)
-      toast.error('加载配置失败')
+      if ((error as Error).message === '未授权') {
+        toast.error('请先登录')
+      } else if ((error as Error).message === '未找到用户配置') {
+        toast.error('未找到用户配置，请先设置')
+      } else {
+        toast.error('加载配置失败')
+      }
     }
   }
 
@@ -100,9 +117,7 @@ export default function GenerateImage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, size, customSize, systemPrompt }),
       })
-      if (!response.ok) {
-        throw new Error('更新配置失败')
-      }
+      if (!response.ok) throw new Error('更新配置失败')
       toast.success('设置保存成功')
     } catch (error) {
       console.error('更新配置错误:', error)
@@ -119,7 +134,7 @@ export default function GenerateImage() {
     setIsLoading(true)
     setError('')
     try {
-      const response = await fetch('/api/generate-image', {
+      const response = await fetch('/api/gen-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -181,9 +196,7 @@ export default function GenerateImage() {
   const fetchHistory = async (page = 1) => {
     try {
       const response = await fetch(`/api/get-history?page=${page}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch history')
-      }
+      if (!response.ok) throw new Error('Failed to fetch history')
       const data: { history: HistoryItem[], totalPages: number, currentPage: number } = await response.json()
       setHistory(data.history)
       setTotalPages(data.totalPages)
@@ -301,8 +314,9 @@ export default function GenerateImage() {
                   <SelectValue placeholder="选择模型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="flux-schnell">flux</SelectItem>
-                  <SelectItem value="flux-pro-max">flux-pro</SelectItem>
+                  <SelectItem value="flux">flux</SelectItem>
+                  <SelectItem value="flux-dev">flux-dev</SelectItem>
+                  <SelectItem value="flux-pro">flux-pro</SelectItem>
                 </SelectContent>
               </Select>
             </div>

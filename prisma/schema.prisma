@@ -14,15 +14,17 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  codes     Code[]
-  images    Image[]
-  ImageLog  ImageLog[]
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String
+  password      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  codes         Code[]
+  images        Image[]
+  imageLogs     ImageLog[]
+  userConfig    UserConfig?
+  systemPrompts SystemPrompt[]
 }
 
 model Code {
@@ -55,4 +57,26 @@ model ImageLog {
   imageUrl  String
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserConfig {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  model      String
+  size       String
+  customSize String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model SystemPrompt {
+  id        Int      @id @default(autoincrement())
+  type      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
 }

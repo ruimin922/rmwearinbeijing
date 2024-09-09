@@ -82,10 +82,10 @@ export default function Home() {
           使用我们的先进AI技术，轻松生成令人惊叹的图片和UI界面。释放您的创造力，让设计变得简单而有趣。
         </p>
         <div className="flex space-x-8">
-          <Link href="/generate-image">
+          <Link href="/fleximage">
             <Button className="text-lg px-8 py-4">生成图片</Button>
           </Link>
-          <Link href="/generate-ui">
+          <Link href="/flexui">
             <Button className="text-lg px-8 py-4">生成 UI</Button>
           </Link>
         </div>
