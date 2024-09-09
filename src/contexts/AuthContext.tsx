@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await fetch('/api/logout', { method: 'POST' })
+      await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
       router.push('/login')
     } catch (error) {

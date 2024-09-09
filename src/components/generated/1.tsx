@@ -1,96 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Sun, Cloud, CloudRain } from "lucide-react";
 
-const planets = [
-  { name: '水星', color: '#8a7f80', size: 0.383, orbitDuration: 88 },
-  { name: '金星', color: '#e39e54', size: 0.949, orbitDuration: 225 },
-  { name: '地球', color: '#6b93d6', size: 1, orbitDuration: 365 },
-  { name: '火星', color: '#c1440e', size: 0.532, orbitDuration: 687 },
-  { name: '木星', color: '#d8ca9d', size: 11.209, orbitDuration: 4333 },
-  { name: '土星', color: '#e3e0c0', size: 9.449, orbitDuration: 10759 },
-  { name: '天王星', color: '#d1e7e7', size: 4.007, orbitDuration: 30687 },
-  { name: '海王星', color: '#5b5ddf', size: 3.883, orbitDuration: 60190 },
-  { name: '冥王星', color: '#7c6a5c', size: 0.18, orbitDuration: 90560 },
-];
-
-const PlanetSystem = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
+const WeatherApp: React.FC = () => {
   return (
-    <div className="relative w-[1938px] h-[1048px] bg-black overflow-hidden">
-      <div className="absolute top-4 left-4 bg-white/80 p-2 rounded-md shadow-md z-10">
-        <p className="text-lg font-semibold">
-          {currentTime.toLocaleString('zh-CN', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit',
-            hour12: false 
-          })}
-        </p>
+    <div className="w-[1938px] h-[1050px] bg-gray-100 p-8 flex flex-col items-center justify-center">
+      <h1 className="text-4xl font-bold mb-8">上海天气预报</h1>
+      <p className="text-xl mb-8">当前时间：2024年9月9日 14:44:59</p>
+      <div className="flex space-x-8">
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle className="text-center">9月9日</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center">
+            <Sun className="w-24 h-24 text-yellow-500 mb-4" />
+            <p className="text-2xl font-semibold">晴天</p>
+            <p className="text-xl">28°C / 20°C</p>
+          </CardContent>
+        </Card>
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle className="text-center">9月10日</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center">
+            <Cloud className="w-24 h-24 text-gray-500 mb-4" />
+            <p className="text-2xl font-semibold">多云</p>
+            <p className="text-xl">26°C / 19°C</p>
+          </CardContent>
+        </Card>
+        <Card className="w-96">
+          <CardHeader>
+            <CardTitle className="text-center">9月11日</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center">
+            <CloudRain className="w-24 h-24 text-blue-500 mb-4" />
+            <p className="text-2xl font-semibold">小雨</p>
+            <p className="text-xl">24°C / 18°C</p>
+          </CardContent>
+        </Card>
       </div>
-      
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="w-32 h-32 bg-yellow-500 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10" />
-        {planets.map((planet, index) => (
-          <motion.div
-            key={planet.name}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: `${(index + 1) * 120}px`,
-              height: `${(index + 1) * 120}px`,
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '50%',
-            }}
-          >
-            <motion.div
-              className="absolute"
-              animate={{
-                rotate: 360
-              }}
-              transition={{
-                duration: planet.orbitDuration / 10,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            >
-              <motion.div
-                className="absolute"
-                style={{
-                  width: `${Math.max(planet.size * 8, 8)}px`,
-                  height: `${Math.max(planet.size * 8, 8)}px`,
-                  backgroundColor: planet.color,
-                  borderRadius: '50%',
-                  top: '0',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                }}
-                whileHover={{ scale: 1.2 }}
-              >
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white/80 px-1 py-0.5 rounded text-xs whitespace-nowrap">
-                  {planet.name}
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        ))}
-      </div>
+      <Separator className="my-8 w-3/4" />
+      <p className="text-lg text-gray-600">数据来源：模拟天气预报，仅供参考</p>
     </div>
   );
 };
 
-export default PlanetSystem;
+export default WeatherApp;
