@@ -1,29 +1,54 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
+import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
 
-const LOG_FILE = path.join(process.cwd(), 'generation-log.json')
-const PAGE_SIZE = 10 // 每页显示的记录数
+const prisma = new PrismaClient()
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
-  
+  const pageSize = 10
+
   try {
-    const fileContent = await fs.readFile(LOG_FILE, 'utf-8')
-    const history = JSON.parse(fileContent).reverse() // 倒序排列整个历史记录
-    
-    const startIndex = (page - 1) * PAGE_SIZE
-    const endIndex = startIndex + PAGE_SIZE
-    const paginatedHistory = history.slice(startIndex, endIndex)
-    
-    return NextResponse.json({
-      history: paginatedHistory,
-      totalPages: Math.ceil(history.length / PAGE_SIZE),
-      currentPage: page
+    const cookieStore = cookies()
+    const token = cookieStore.get('token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: '未授权' }, { status: 401 })
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
+    const userId = parseInt(decoded.userId, 10)
+
+    const totalItems = await prisma.image.count({ where: { userId } })
+    const totalPages = Math.ceil(totalItems / pageSize)
+
+    const images = await prisma.image.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        url: true,
+        query: true,
+        prompt: true,
+        createdAt: true
+      }
     })
+
+    const history = images.map(img => ({
+      imageUrl: img.url,
+      query: img.query,
+      prompt: img.prompt,
+      timestamp: img.createdAt.toISOString()
+    }))
+
+    return NextResponse.json({ history, totalPages, currentPage: page })
   } catch (error) {
-    console.error('Error reading generation history:', error)
-    return NextResponse.json({ error: 'Failed to read generation history' }, { status: 500 })
+    console.error('获取历史记录错误:', error)
+    return NextResponse.json({ error: '获取历史记录失败' }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
   }
 }

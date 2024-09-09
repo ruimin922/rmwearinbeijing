@@ -1,35 +1,38 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
+import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
 
-const LOG_FILE = path.join(process.cwd(), 'generation-log.json')
+const prisma = new PrismaClient()
 
 export async function POST(request: Request) {
   const { query, prompt, imageUrl } = await request.json()
 
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    query,
-    prompt,
-    imageUrl
-  }
-
   try {
-    let existingLog = []
-    try {
-      const fileContent = await fs.readFile(LOG_FILE, 'utf-8')
-      existingLog = JSON.parse(fileContent)
-    } catch (error) {
-      // 如果文件不存在或为空，我们将使用空数组
+    const cookieStore = cookies()
+    const token = cookieStore.get('token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: '未授权' }, { status: 401 })
     }
 
-    existingLog.push(logEntry)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
+    const userId = parseInt(decoded.userId, 10)
 
-    await fs.writeFile(LOG_FILE, JSON.stringify(existingLog, null, 2))
+    await prisma.image.create({
+      data: {
+        query,
+        prompt,
+        url: imageUrl,
+        userId: userId
+      }
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error logging generation:', error)
-    return NextResponse.json({ error: 'Failed to log generation' }, { status: 500 })
+    console.error('记录生成错误:', error)
+    return NextResponse.json({ error: '记录生成失败' }, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
   }
 }

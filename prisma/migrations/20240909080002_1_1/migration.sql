@@ -1,0 +1,10 @@
+-- CreateTable
+CREATE TABLE "ImageLog" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "query" TEXT NOT NULL,
+    "prompt" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "ImageLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
