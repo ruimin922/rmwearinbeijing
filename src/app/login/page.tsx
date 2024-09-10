@@ -1,40 +1,32 @@
 'use client'
 
 import { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useAuth } from '@/contexts/AuthContext'
 
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const router = useRouter()
-    const { updateUser } = useAuth()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
 
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            })
+        const result = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+        })
 
-            if (response.ok) {
-                const data = await response.json()
-                updateUser({ id: data.userId, email }) // 更新用户状态
-                router.push('/')
-            } else {
-                const data = await response.json()
-                setError(data.error || '登录失败')
-            }
-        } catch (error) {
-            setError('登录过程中发生错误')
+        if (result?.error) {
+            setError(result.error)
+        } else {
+            router.push('/')
         }
     }
 

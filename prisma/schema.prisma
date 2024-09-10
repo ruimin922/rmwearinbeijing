@@ -21,42 +21,19 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   codes         Code[]
-  images        Image[]
-  imageLogs     ImageLog[]
   userConfig    UserConfig?
-  systemPrompts SystemPrompt[]
+  prompts       Prompt[]
 }
 
 model Code {
   id        Int      @id @default(autoincrement())
   query     String
   content   String
-  is_edit   Boolean  @default(false)
+  svgCode   String   // 新增字段：存储生成的SVG代码
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
-}
-
-model Image {
-  id        Int      @id @default(autoincrement())
-  url       String
-  query     String
-  prompt    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-}
-
-model ImageLog {
-  id        Int      @id @default(autoincrement())
-  timestamp DateTime @default(now())
-  query     String
-  prompt    String
-  imageUrl  String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
 }
 
 model UserConfig {
@@ -70,13 +47,14 @@ model UserConfig {
   user       User     @relation(fields: [userId], references: [id])
 }
 
-model SystemPrompt {
-  id        Int      @id @default(autoincrement())
-  type      String
+model Prompt {
+  id        String   @id @default(cuid())
+  userId    Int
+  name      String
   content   String
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
+

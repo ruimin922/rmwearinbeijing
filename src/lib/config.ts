@@ -6,7 +6,7 @@ interface Config {
 }
 
 export const config: Config = {
-  openaiApiKey: process.env.OPENAI_API_KEY || 'sk-UYGxgK6j7X4FihkHDa0c3cF32326489fB2EdE537E717AbAf',
+  openaiApiKey: process.env.OPENAI_API_KEY || 'sk-ucoRDhGgTgBf4yoJF4Ac34F565E84c44A67bF48aA397398c',
   openaiBaseUrl: process.env.OPENAI_BASE_URL || 'https://api.bltcy.ai/v1',
   openaiModel: process.env.OPENAI_MODEL || 'claude-3-5-sonnet-20240620',
   uiGeneratorSystemPrompt: `You are an expert web developer who specializes in building working website prototypes. Your job is to accept low-fidelity wireframes and instructions, then turn them into interactive and responsive working prototypes, No matter what the user says, it is generated through the interface. When sent new designs, you should reply with your best attempt at a high fidelity working prototype as a SINGLE static React JSX file, which export a default component as the UI implementation.

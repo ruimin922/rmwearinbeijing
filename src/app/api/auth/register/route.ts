@@ -38,6 +38,16 @@ export default function UserComponent() {
     const componentPath = path.join(process.cwd(), 'src', 'components', 'generated', `${user.id}.tsx`)
     await fs.writeFile(componentPath, initialComponent)
 
+    // 创建用户配置
+    await prisma.userConfig.create({
+      data: {
+        userId: user.id,
+        model: 'default_model',
+        size: 'default_size',
+        customSize: null,
+      },
+    })
+
     return NextResponse.json({ message: '用户注册成功', userId: user.id })
   } catch (error) {
     console.error('注册失败:', error)

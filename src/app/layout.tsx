@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from '@/contexts/AuthContext';
+import ClientLayout from "@/components/ClientLayout"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Flux Wallpaper Generator",
   description: "Generate Flux Wallpaper with AI",
 };
+
 
 export default function RootLayout({
   children,
@@ -18,9 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

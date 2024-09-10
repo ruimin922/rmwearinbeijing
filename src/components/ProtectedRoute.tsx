@@ -1,22 +1,23 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
+import { useSession } from 'next-auth/react'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth()
+  const { data: session, status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (status === 'loading') return // 等待会话状态加载完成
+    if (!session) {
       router.push('/login')
     }
-  }, [user, isLoading, router])
+  }, [session, status, router])
 
-  if (isLoading) {
+  if (status === 'loading') {
     return <div>加载中...</div>
   }
 
-  if (!user) {
+  if (!session) {
     return null
   }
 
