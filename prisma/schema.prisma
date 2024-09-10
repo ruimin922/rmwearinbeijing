@@ -13,48 +13,32 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model User {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  name          String
-  password      String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  codes         Code[]
-  userConfig    UserConfig?
-  prompts       Prompt[]
-}
-
 model Code {
   id        Int      @id @default(autoincrement())
   query     String
   content   String
-  svgCode   String   // 新增字段：存储生成的SVG代码
+  svgCode   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
 }
 
 model UserConfig {
   id         Int      @id @default(autoincrement())
-  userId     Int      @unique
+  userId     String   @unique
   model      String
   size       String
   customSize String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
 }
 
 model Prompt {
   id        String   @id @default(cuid())
-  userId    Int
+  userId    String
   name      String
   content   String
   isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
 }
-

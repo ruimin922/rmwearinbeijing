@@ -1,12 +1,12 @@
 // src/components/PromptList.tsx
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer"
 import { Prompt } from '@/types/prompt'
-
 
 interface PromptListProps {
   prompts: Prompt[]
@@ -39,31 +39,31 @@ export function PromptList({ prompts, activePromptId, onSave, onDelete, onActiva
   }
 
   return (
-    <div className="h-full">
-      <ScrollArea className="h-[calc(100vh-100px)]">
-        <div className="space-y-2 p-4">
+    <div className="h-full flex flex-col">
+      <ScrollArea className="flex-grow">
+        <div className="space-y-4 p-4">
           {prompts.map((prompt) => (
             <div 
               key={prompt.id} 
-              className={`${
-                prompt.id === activePromptId ? 'bg-blue-100' : 'bg-white'
-              } shadow-sm rounded-lg p-3 hover:shadow-md transition-shadow`}
+              className={`p-4 rounded-lg border ${
+                prompt.id === activePromptId ? 'bg-gray-800' : 'bg-blue-800'
+              }`}
             >
-              <h3 className="font-semibold text-lg">{prompt.name}</h3>
-              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{prompt.content}</p>
-              <div className="mt-3 space-x-2">
-                <Button size="sm" variant="outline" onClick={() => handleEdit(prompt)}>编辑</Button>
-                <Button size="sm" variant="outline" onClick={() => onDelete(prompt.id!)}>删除</Button>
+              <h3 className="font-medium text-lg mb-2 text-white">{prompt.name}</h3>
+              <p className="text-sm mb-4 line-clamp-2 text-gray-300">{prompt.content}</p>
+              <div className="flex space-x-2">
+                <Button size="sm" variant="outline" onClick={() => handleEdit(prompt)} >编辑</Button>
+                <Button size="sm" variant="outline" onClick={() => onDelete(prompt.id!)} >删除</Button>
                 {prompt.id !== activePromptId && (
-                  <Button size="sm" variant="outline" onClick={() => onActivate(prompt.id!)}>激活</Button>
+                  <Button size="sm" variant="default" onClick={() => onActivate(prompt.id!)}>激活</Button>
                 )}
               </div>
             </div>
           ))}
         </div>
       </ScrollArea>
-      <div className="p-4">
-        <Button onClick={() => handleEdit({ id: '', name: '', content: '', isActive: false })} className="w-full">
+      <div className="p-4 border-t border-gray-700">
+        <Button onClick={() => handleEdit({ id: '', name: '', content: '', isActive: false })} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
           新建提示词
         </Button>
       </div>
@@ -74,15 +74,19 @@ export function PromptList({ prompts, activePromptId, onSave, onDelete, onActiva
             <DrawerTitle>{editingPrompt?.id ? '编辑提示词' : '新建提示词'}</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 space-y-4">
+            <Label htmlFor="promptName">提示词名称</Label>
             <Input
+              id="promptName"
               value={editingPrompt?.name || ''}
               onChange={(e) => setEditingPrompt({ ...editingPrompt!, name: e.target.value })}
-              placeholder="提示词名称"
+              placeholder="输入提示词名称"
             />
+            <Label htmlFor="promptContent">提示词内容</Label>
             <Textarea
+              id="promptContent"
               value={editingPrompt?.content || ''}
               onChange={(e) => setEditingPrompt({ ...editingPrompt!, content: e.target.value })}
-              placeholder="提示词内容"
+              placeholder="输入提示词内容"
               className="min-h-[200px]"
             />
           </div>

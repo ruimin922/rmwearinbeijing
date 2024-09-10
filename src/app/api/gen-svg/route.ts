@@ -4,7 +4,8 @@ import { config } from '@/lib/config'
 import { PrismaClient } from '@prisma/client'
 
 const openai = new OpenAI({
-  apiKey: config.openaiApiKey,
+  // apiKey: config.openaiApiKey,
+  apiKey: 'sk-UYGxgK6j7X4FihkHDa0c3cF32326489fB2EdE537E717AbAf',
   baseURL: config.openaiBaseUrl
 })
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   // 获取用户当前激活的 prompt
   const activePrompt = await prisma.prompt.findFirst({
-    where: { userId: parseInt(userId), isActive: true }
+    where: { userId: userId, isActive: true }
   })
 
   const sysPrompt = activePrompt?.content || defaultSysPrompt

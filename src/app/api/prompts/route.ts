@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   const prompts = await prisma.prompt.findMany({
-    where: { userId: parseInt(userId) },
+    where: { userId: userId },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -60,7 +60,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     await prisma.prompt.updateMany({
-      where: { userId: parseInt(userId) },
+      where: { userId: userId },
       data: { isActive: false },
     })
 

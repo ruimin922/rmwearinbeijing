@@ -15,14 +15,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
 import { PromptList } from '@/components/PromptList'
 import { Prompt } from '@/types/prompt'
-
-interface GenerateSVGClientProps {
-  userId: string
-}
+import { useUser } from '@clerk/nextjs'
 
 const defaultSysPrompt = ''
 
-export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
+export default function GenerateSVGClient() {
+  const { user } = useUser()
   const [query, setQuery] = useState('')
   const [markdownContent, setMarkdownContent] = useState('')
   const [svgCode, setSvgCode] = useState('')
@@ -39,8 +37,10 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
   const [showSVGPreview, setShowSVGPreview] = useState(false)
 
   const fetchPrompts = useCallback(async () => {
+    if (!user) return
+
     try {
-      const response = await fetch(`/api/prompts?userId=${parseInt(userId)}`)
+      const response = await fetch(`/api/prompts?userId=${user.id}`)
       if (response.ok) {
         const data = await response.json()
         setPrompts(data)
@@ -54,19 +54,21 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
       console.error('获取提示词失败:', error)
       toast.error('获取提示词失败')
     }
-  }, [userId])
+  }, [user])
 
   useEffect(() => {
     fetchPrompts()
   }, [fetchPrompts])
 
   const handleSavePrompt = async (prompt: Prompt) => {
+    if (!user) return
+
     try {
       const method = prompt.id ? 'PUT' : 'POST'
       const response = await fetch('/api/prompts', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...prompt, userId: parseInt(userId) }),
+        body: JSON.stringify({ ...prompt, userId: user.id }),
       })
       if (response.ok) {
         fetchPrompts()
@@ -94,11 +96,13 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
   }
 
   const handleActivatePrompt = async (promptId: string) => {
+    if (!user) return
+
     try {
       const response = await fetch(`/api/prompts`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: promptId, userId: parseInt(userId) }),
+        body: JSON.stringify({ id: promptId, userId: user.id }),
       })
       if (response.ok) {
         await fetchPrompts()
@@ -112,6 +116,8 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
   }
 
   const generateSVG = useCallback(async (prompt: string) => {
+    if (!user) return
+
     setIsLoading(true)
     setError(null)
     setMarkdownContent('')
@@ -122,7 +128,7 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
       const response = await fetch('/api/gen-svg', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: prompt, userId, sysPrompt })
+        body: JSON.stringify({ query: prompt, userId: user.id, sysPrompt })
       })
 
       if (!response.ok) throw new Error('请求失败')
@@ -160,7 +166,7 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, sysPrompt])
+  }, [user, sysPrompt])
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault()
@@ -201,23 +207,35 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
   )
 
   return (
-    <main className="flex flex-col h-screen p-4 bg-gray-100">
-      <div className="flex-grow overflow-hidden">
-        <Card className="w-full h-full overflow-hidden">
-          <CardHeader>
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-4">
+        <Link href="/" className="flex items-center text-gray-600 hover:text-gray-800">
+          <FaArrowLeft className="mr-2" />
+          返回主页
+        </Link>
+        <h2 className="text-2xl font-bold text-gray-800">Flex SVG 生成器</h2>
+        <Button onClick={() => setIsSheetOpen(true)} >
+          <FaCog className="mr-2 h-4 w-4" />
+          设置
+        </Button>
+      </div>
+
+      <div className="flex-grow flex flex-col space-y-4">
+        <Card className="flex-grow flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0">
             <CardTitle>生成结果</CardTitle>
           </CardHeader>
-          <CardContent className="h-[calc(100%-4rem)] overflow-auto" ref={markdownRef}>
+          <CardContent className="flex-grow overflow-auto pr-4" ref={markdownRef}>
             <ReactMarkdown
               components={{
-                h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mb-4 text-gray-800" {...props} />,
-                h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold mb-3 text-gray-700" {...props} />,
-                h3: ({ node, ...props }) => <h3 className="text-xl font-medium mb-2 text-gray-600" {...props} />,
-                p: ({ node, ...props }) => <p className="mb-4 text-gray-600 leading-relaxed" {...props} />,
-                ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 text-gray-600" {...props} />,
-                ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 text-gray-600" {...props} />,
+                h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mb-4 text-blue-300" {...props} />,
+                h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold mb-3 text-blue-400" {...props} />,
+                h3: ({ node, ...props }) => <h3 className="text-xl font-medium mb-2 text-blue-500" {...props} />,
+                p: ({ node, ...props }) => <p className="mb-4 text-gray-300 leading-relaxed" {...props} />,
+                ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 text-gray-300" {...props} />,
+                ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 text-gray-300" {...props} />,
                 li: ({ node, ...props }) => <li className="mb-2" {...props} />,
-                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4 text-gray-600" {...props} />,
+                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-blue-500 pl-4 italic my-4 text-gray-400" {...props} />,
                 code({ inline, className, children, ...props }: CodeProps) {
                   const match = /language-(\w+)/.exec(className || '')
                   return !inline && match ? (
@@ -226,12 +244,12 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
                       style={vscDarkPlus}
                       language={match[1]}
                       PreTag="div"
-                      className="rounded-md"
+                      className="rounded-md bg-gray-900 p-4 my-4"
                     >
                       {String(children).replace(/\n$/, '')}
                     </SyntaxHighlighter>
                   ) : (
-                    <code className="bg-gray-200 rounded px-1 py-0.5 text-sm text-gray-800" {...props}>
+                    <code className="bg-gray-700 rounded px-1 py-0.5 text-sm text-blue-300" {...props}>
                       {children}
                     </code>
                   )
@@ -242,52 +260,39 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
             </ReactMarkdown>
             {svgCode && (
               <div 
-                className="w-64 h-28 bg-gray-200 rounded-md flex items-center justify-center cursor-pointer"
+                className="w-64 h-28 bg-gray-700 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200"
                 onClick={() => setShowSVGPreview(true)}
               >
-                <span className="text-gray-600">点击查看 SVG</span>
+                <span className="text-blue-400">点击查看 SVG</span>
               </div>
             )}
           </CardContent>
         </Card>
+
+        <Card className="flex-shrink-0">
+          <CardContent className="p-4">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2">
+              <Input
+                type="text"
+                placeholder="描述你想要的 SVG 图像..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="flex-grow"
+                disabled={isLoading}
+              />
+              <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FaPaperPlane className="mr-2 h-4 w-4" />}
+                {isLoading ? '生成中...' : '生成'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
 
-      <Card className="mt-4">
-        <CardContent className="p-4">
-          <div className="w-full max-w-6xl mx-auto flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center text-gray-600 hover:text-gray-800">
-              <FaArrowLeft className="mr-2" />
-              返回主页
-            </Link>
-            <h2 className="text-2xl font-bold text-gray-800">Flex SVG 生成器</h2>
-            <div className="flex-grow flex items-center gap-2">
-              <form onSubmit={handleSubmit} className="flex-grow flex items-center gap-2">
-                <Input
-                  type="text"
-                  placeholder="描述你想要的 SVG 图像..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="flex-grow"
-                  disabled={isLoading}
-                />
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FaPaperPlane className="mr-2 h-4 w-4" />}
-                  {isLoading ? '生成中...' : '生成'}
-                </Button>
-              </form>
-              <Button onClick={() => setIsSheetOpen(true)}>
-                <FaCog className="mr-2 h-4 w-4" />
-                设置
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent side="right" className="w-1/3">
+        <SheetContent side="right" className="w-1/3 bg-gray-800 text-white border-l border-gray-700">
           <SheetHeader>
-            <SheetTitle>提示词管理</SheetTitle>
+            <SheetTitle className="text-blue-400">提示词管理</SheetTitle>
           </SheetHeader>
           <PromptList
             prompts={prompts}
@@ -297,12 +302,12 @@ export default function GenerateSVGClient({ userId }: GenerateSVGClientProps) {
             onActivate={handleActivatePrompt}
           />
           <SheetFooter>
-            <Button onClick={() => setIsSheetOpen(false)}>关闭</Button>
+            <Button onClick={() => setIsSheetOpen(false)} className="bg-blue-600 hover:bg-blue-700">关闭</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
 
       {showSVGPreview && <SVGPreview />}
-    </main>
+    </div>
   )
 }

@@ -2,15 +2,18 @@
 
 import ProtectedRoute from '@/components/ProtectedRoute'
 import GenerateSVGClient from './GenerateSVGClient'
-import { useSession } from 'next-auth/react'
-import { Session } from 'next-auth'
+import { useUser } from '@clerk/nextjs'
 
 export default function GenerateUI() {
-  const { data: session } = useSession() as { data: Session | null }
+  const { isLoaded, isSignedIn, user } = useUser()
+
+  if (!isLoaded || !isSignedIn) {
+    return null
+  }
 
   return (
     <ProtectedRoute>
-      <GenerateSVGClient userId={(session?.user as any)?.id || ''} />
+      <GenerateSVGClient />
     </ProtectedRoute>
   )
 }

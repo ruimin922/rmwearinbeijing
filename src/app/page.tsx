@@ -3,12 +3,24 @@
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { motion } from 'framer-motion'
-import { useSession, signOut } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 import { Card, CardContent } from "@/components/ui/card"
+import { SignInButton } from '@clerk/nextjs'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
-  const { data: session, status } = useSession()
+  const { isLoaded, isSignedIn, user } = useUser()
   const text = "FlexSVG 设计不同的 SVG"
+  const [windowHeight, setWindowHeight] = useState(0)
+
+  useEffect(() => {
+    const updateHeight = () => {
+      setWindowHeight(window.innerHeight)
+    }
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [])
 
   const container = {
     hidden: { opacity: 0 },
@@ -49,67 +61,52 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="py-4 px-8 flex justify-between items-center">
-        <Link href="/">
-          <span className="text-2xl font-bold text-gray-800">FlexSVG</span>
-        </Link>
-        <div className="space-x-4">
-          {status === 'loading' ? (
-            <span>加载中...</span>
-          ) : session ? (
-            <>
-              <span className="text-gray-600">欢迎，{session.user?.email}</span>
-              <Button onClick={() => signOut()} variant="outline" className="text-sm">登出</Button>
-            </>
+    <div className="h-full overflow-auto">
+      <div className="flex flex-col items-center justify-center p-8 min-h-full">
+        <div className="text-center mb-12">
+          <motion.h1 
+            className="text-5xl font-bold text-gray-800 mb-6"
+            variants={container}
+            initial="hidden"
+            animate="visible"
+          >
+            {text.split("").map((char, index) => (
+              <motion.span key={char + "-" + index} variants={child}>
+                {char}
+              </motion.span>
+            ))}
+          </motion.h1>
+          
+          <p className="text-lg text-gray-700 mb-10 max-w-2xl mx-auto">
+            使用我们的先进AI技术，轻松生成令人惊叹的SVG图像。从简单的图形到复杂的插图，释放您的创造力，让SVG设计变得简单而有趣。
+          </p>
+          
+          {isSignedIn ? (
+            <Link href="/flexsvg">
+              <Button className="text-lg px-8 py-4 mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
+                开始创作
+              </Button>
+            </Link>
           ) : (
-            <>
-              <Link href="/login">
-                <Button variant="outline" className="text-sm">登录</Button>
-              </Link>
-              <Link href="/register">
-                <Button className="text-sm">注册</Button>
-              </Link>
-            </>
+            <SignInButton mode="modal">
+              <Button className="text-lg px-8 py-4 mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
+                登录以开始创作
+              </Button>
+            </SignInButton>
           )}
         </div>
-      </header>
-      
-      <main className="flex-grow flex flex-col items-center p-8">
-        <motion.h1 
-          className="text-5xl font-bold text-gray-800 mb-8 text-center"
-          variants={container}
-          initial="hidden"
-          animate="visible"
-        >
-          {text.split("").map((char, index) => (
-            <motion.span key={char + "-" + index} variants={child}>
-              {char}
-            </motion.span>
-          ))}
-        </motion.h1>
-        <p className="text-xl text-gray-600 mb-12 text-center max-w-2xl">
-          使用我们的先进AI技术，轻松生成令人惊叹的SVG图像。从简单的图形到复杂的插图，释放您的创造力，让SVG设计变得简单而有趣。
-        </p>
-        <Link href="/flexsvg">
-          <Button className="text-lg px-8 py-4 mb-16">开始创作</Button>
-        </Link>
 
-        <div className="w-full max-w-6xl grid grid-cols-3 gap-8">
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {svgExamples.map((example, index) => (
-            <Card key={index} className="overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">{example.title}</h3>
-                <div className="flex justify-center items-center h-32 bg-white rounded-lg" dangerouslySetInnerHTML={{ __html: example.svg }} />
+            <Card key={index} className="overflow-hidden bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">{example.title}</h3>
+                <div className="flex justify-center items-center h-32 bg-gray-100 rounded-lg" dangerouslySetInnerHTML={{ __html: example.svg }} />
               </CardContent>
             </Card>
           ))}
         </div>
-      </main>
-      
-      <footer className="py-6 text-center text-gray-500">
-        © 2023 FlexSVG. 保留所有权利。
-      </footer>
+      </div>
     </div>
   )
 }
