@@ -88,6 +88,10 @@ export default function Home() {
           <Link href="/flexui">
             <Button className="text-lg px-8 py-4">生成 UI</Button>
           </Link>
+          <Link href="/flexsvg">
+            <Button className="text-lg px-8 py-4">生成 SVG</Button>
+          </Link>
+
         </div>
       </main>
       
