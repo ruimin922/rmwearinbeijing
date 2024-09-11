@@ -25,10 +25,10 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={zhCN}>
       <html lang="zh-CN" className="h-full">
-        <body className={`${inter.className} h-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200`}>
-          <div className="h-full flex">
+        <body className={`${inter.className} h-full bg-gradient-to-br from-gray-100 to-gray-200`}>
+          <div className="h-full flex flex-col sm:flex-row">
             <SignedIn>
-              <aside className="w-16 bg-white shadow-md flex flex-col items-center justify-between py-4">
+              <aside className="hidden sm:flex w-16 bg-white shadow-md flex-col items-center justify-between py-4">
                 <div className="flex flex-col items-center space-y-4">
                   <Link href="/">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,14 +41,16 @@ export default function RootLayout({
                 <UserButton afterSignOutUrl="/" />
               </aside>
             </SignedIn>
-            <div className="flex-1 overflow-auto">
-              <main className="container mx-auto p-4 max-w-7xl">
-                <SignedIn>
-                  {children}
-                </SignedIn>
-                <SignedOut>
-                  {children}
-                </SignedOut>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <main className="flex-1 overflow-auto overflow-hidden">
+                <div className="container mx-auto p-4 max-w-7xl h-full">
+                  <SignedIn>
+                    {children}
+                  </SignedIn>
+                  <SignedOut>
+                    {children}
+                  </SignedOut>
+                </div>
               </main>
             </div>
           </div>
