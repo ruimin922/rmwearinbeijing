@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FaPaperPlane, FaArrowLeft, FaCog, FaTimes, FaExpand, FaImage } from 'react-icons/fa'
+import { FaPaperPlane, FaArrowLeft, FaCog, FaImage } from 'react-icons/fa'
 import { Loader2 } from "lucide-react"
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
@@ -12,11 +12,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import type { CodeProps } from 'react-markdown/lib/ast-to-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
-import { PromptList } from '@/components/PromptList'
-import { Prompt } from '@/types/prompt'
 import { useUser } from '@clerk/nextjs'
 import { SVGPreview } from '@/components/SVGPreview'
+import { PromptManager } from '@/components/PromptManager'
 
 const defaultSysPrompt = ''
 
@@ -30,8 +28,6 @@ export default function GenerateSVGClient() {
   const markdownRef = useRef<HTMLDivElement>(null)
   const [sysPrompt, setSysPrompt] = useState(defaultSysPrompt)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [prompts, setPrompts] = useState<Prompt[]>([])
-  const [activePromptId, setActivePromptId] = useState<string | null>(null)
   const [showSVGPreview, setShowSVGPreview] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -43,85 +39,6 @@ export default function GenerateSVGClient() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  const fetchPrompts = useCallback(async () => {
-    if (!user) return
-
-    try {
-      const response = await fetch(`/api/prompts?userId=${user.id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setPrompts(data)
-        const activePrompt = data.find((prompt: Prompt) => prompt.isActive)
-        if (activePrompt) {
-          setActivePromptId(activePrompt.id)
-          setSysPrompt(activePrompt.content)
-        }
-      }
-    } catch (error) {
-      console.error('获取提示词失败:', error)
-      toast.error('获取提示词失败')
-    }
-  }, [user])
-
-  useEffect(() => {
-    fetchPrompts()
-  }, [fetchPrompts])
-
-  const handleSavePrompt = async (prompt: Prompt) => {
-    if (!user) return
-
-    try {
-      const method = prompt.id ? 'PUT' : 'POST'
-      const response = await fetch('/api/prompts', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...prompt, userId: user.id }),
-      })
-      if (response.ok) {
-        fetchPrompts()
-        toast.success(prompt.id ? '提示词更新成功' : '提示词创建成功')
-      }
-    } catch (error) {
-      console.error('保存提示词失败:', error)
-      toast.error('保存提示词失败')
-    }
-  }
-
-  const handleDeletePrompt = async (promptId: string) => {
-    try {
-      const response = await fetch(`/api/prompts?id=${promptId}`, { method: 'DELETE' })
-      const responseData = await response.json()
-      if (!response.ok) {
-        throw new Error(`删除提示词失败: ${responseData.error || '未知错误'}`)
-      }
-      await fetchPrompts()
-      setPrompts(prevPrompts => prevPrompts.filter(prompt => prompt.id !== promptId))
-      toast.success('提示词删除成功')
-    } catch (error) {
-      toast.error(`删除提示词失败: ${error instanceof Error ? error.message : '未知错误'}`)
-    }
-  }
-
-  const handleActivatePrompt = async (promptId: string) => {
-    if (!user) return
-
-    try {
-      const response = await fetch(`/api/prompts`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: promptId, userId: user.id }),
-      })
-      if (response.ok) {
-        await fetchPrompts()
-        toast.success('提示词已激活')
-      } else {
-        throw new Error('激活提示词失败')
-      }
-    } catch (error) {
-      toast.error('激活提示词失败')
-    }
-  }
 
   const generateSVG = useCallback(async (prompt: string) => {
     if (!user) return
@@ -273,23 +190,12 @@ export default function GenerateSVGClient() {
         </Card>
       </div>
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent side={isMobile ? "bottom" : "right"} className="w-full sm:w-1/3 bg-gray-800 text-white border-t sm:border-l border-gray-700">
-          <SheetHeader>
-            <SheetTitle className="text-blue-400">提示词管理</SheetTitle>
-          </SheetHeader>
-          <PromptList
-            prompts={prompts}
-            activePromptId={activePromptId}
-            onSave={handleSavePrompt}
-            onDelete={handleDeletePrompt}
-            onActivate={handleActivatePrompt}
-          />
-          <SheetFooter>
-            <Button onClick={() => setIsSheetOpen(false)} className="bg-blue-600 hover:bg-blue-700">关闭</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <PromptManager
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        onSysPromptChange={setSysPrompt}
+        isMobile={isMobile}
+      />
 
       {showSVGPreview && <SVGPreview svgCode={svgCode} onClose={() => setShowSVGPreview(false)} />}
     </div>

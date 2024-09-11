@@ -11,7 +11,13 @@ interface SVGPreviewProps {
 export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
   const handleDownloadSVG = () => {
     try {
-      const blob = new Blob([svgCode], { type: 'image/svg+xml' })
+      // 添加水印
+      const watermarkedSVG = svgCode.replace(
+        '</svg>',
+        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@GLBai</text></svg>`
+      )
+      
+      const blob = new Blob([watermarkedSVG], { type: 'image/svg+xml' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
