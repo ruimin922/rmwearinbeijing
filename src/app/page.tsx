@@ -10,16 +10,16 @@ import { useEffect, useState } from 'react'
 
 export default function Home() {
   const { isLoaded, isSignedIn, user } = useUser()
+  const [isMobile, setIsMobile] = useState(false)
   const text = "FlexSVG 设计不同的 SVG"
-  const [windowHeight, setWindowHeight] = useState(0)
 
   useEffect(() => {
-    const updateHeight = () => {
-      setWindowHeight(window.innerHeight)
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
     }
-    updateHeight()
-    window.addEventListener('resize', updateHeight)
-    return () => window.removeEventListener('resize', updateHeight)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const container = {
@@ -61,11 +61,11 @@ export default function Home() {
   ]
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="flex flex-col items-center justify-center p-8 min-h-full">
-        <div className="text-center mb-12">
+    <div className="min-h-screen overflow-auto">
+      <div className="flex flex-col items-center justify-center p-4 sm:p-8">
+        <div className="text-center mb-8 sm:mb-12">
           <motion.h1 
-            className="text-5xl font-bold text-gray-800 mb-6"
+            className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4 sm:mb-6"
             variants={container}
             initial="hidden"
             animate="visible"
@@ -77,31 +77,31 @@ export default function Home() {
             ))}
           </motion.h1>
           
-          <p className="text-lg text-gray-700 mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-700 mb-6 sm:mb-10 max-w-xl sm:max-w-2xl mx-auto">
             使用我们的先进AI技术，轻松生成令人惊叹的SVG图像。从简单的图形到复杂的插图，释放您的创造力，让SVG设计变得简单而有趣。
           </p>
           
           {isSignedIn ? (
             <Link href="/flexsvg">
-              <Button className="text-lg px-8 py-4 mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
+              <Button className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 mb-8 sm:mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
                 开始创作
               </Button>
             </Link>
           ) : (
             <SignInButton mode="modal">
-              <Button className="text-lg px-8 py-4 mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
+              <Button className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 mb-8 sm:mb-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105">
                 登录以开始创作
               </Button>
             </SignInButton>
           )}
         </div>
 
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="w-full max-w-6xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {svgExamples.map((example, index) => (
             <Card key={index} className="overflow-hidden bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-4">
                 <h3 className="text-lg font-semibold mb-3 text-gray-800">{example.title}</h3>
-                <div className="flex justify-center items-center h-32 bg-gray-100 rounded-lg" dangerouslySetInnerHTML={{ __html: example.svg }} />
+                <div className="flex justify-center items-center h-24 sm:h-32 bg-gray-100 rounded-lg" dangerouslySetInnerHTML={{ __html: example.svg }} />
               </CardContent>
             </Card>
           ))}
