@@ -4,9 +4,8 @@ import { config } from '@/lib/config'
 import { PrismaClient } from '@prisma/client'
 
 const openai = new OpenAI({
-  // apiKey: config.openaiApiKey,
-  apiKey: 'sk-UYGxgK6j7X4FihkHDa0c3cF32326489fB2EdE537E717AbAf',
-  baseURL: config.openaiBaseUrl
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: process.env.OPENAI_BASE_URL
 })
 
 const prisma = new PrismaClient()
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
   try {
     console.log('开始调用 OpenAI API')
     const stream = await openai.chat.completions.create({
-      model: config.openaiModel,
+      model: process.env.OPENAI_MODEL || 'claude-3-5-sonnet-20240620',
       messages,
       temperature: 0.5,
       stream: true,

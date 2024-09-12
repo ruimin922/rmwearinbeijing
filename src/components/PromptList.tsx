@@ -113,10 +113,11 @@ export function PromptList({ prompts, activePromptId, onSave, onDelete, onActiva
           ))}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t border-gray-700 flex justify-between">
-        <Button onClick={() => handleEdit({ id: '', name: '', content: '', isActive: false })} >
+      <div className="p-4 border-t border-gray-700 flex flex-col items-center">
+        <Button onClick={() => handleEdit({ id: '', name: '', content: '', isActive: false })} className="w-full mb-4">
           新建提示词
         </Button>
+        <img src="/qrcode_for_gh_874ad9edfe28_258.jpg" alt="二维码" width={100} height={100} />
       </div>
 
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
