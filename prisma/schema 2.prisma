@@ -1,0 +1,44 @@
+// 这是您的 Prisma schema 文件，
+// 在文档中了解更多：https://pris.ly/d/prisma-schema
+
+// 寻找加速查询或轻松扩展无服务器或边缘函数的方法？
+// 尝试 Prisma Accelerate：https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Code {
+  id        Int      @id @default(autoincrement())
+  query     String
+  content   String
+  svgCode   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+}
+
+model UserConfig {
+  id         Int      @id @default(autoincrement())
+  userId     String   @unique
+  model      String
+  size       String
+  customSize String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Prompt {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  content   String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

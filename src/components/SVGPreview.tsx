@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { FaTimes, FaDownload } from 'react-icons/fa'
+import { FaTimes, FaDownload, FaCopy } from 'react-icons/fa'
 import { toast } from 'react-hot-toast'
+import { useUser } from '@clerk/nextjs'
 
 interface SVGPreviewProps {
   svgCode: string
@@ -9,12 +10,19 @@ interface SVGPreviewProps {
 }
 
 export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
+  const [pngDataUrl, setPngDataUrl] = useState<string | null>(null)
+  const { user } = useUser()
+
+  const getUserName = () => {
+    return user?.firstName || user?.username || 'GLBai'
+  }
+
   const handleDownloadSVG = () => {
     try {
       // 添加水印
       const watermarkedSVG = svgCode.replace(
         '</svg>',
-        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@GLBai</text></svg>`
+        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@${getUserName()}</text></svg>`
       )
       
       const blob = new Blob([watermarkedSVG], { type: 'image/svg+xml' })
@@ -28,8 +36,89 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
       URL.revokeObjectURL(url)
       toast.success('SVG 已下载')
     } catch (error) {
-      console.error('下载 SVG 失败:', error)
       toast.error('下载 SVG 失败')
+    }
+  }
+
+  const handleGeneratePNG = () => {
+    try {
+      // 添加水印
+      const watermarkedSVG = svgCode.replace(
+        '</svg>',
+        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@${getUserName()}</text></svg>`
+      )
+      const parser = new DOMParser()
+      const svgDoc = parser.parseFromString(watermarkedSVG, 'image/svg+xml')
+      const svgElement = svgDoc.documentElement
+
+      const svgWidth = svgElement.getAttribute('width')
+      const svgHeight = svgElement.getAttribute('height')
+      const viewBox = svgElement.getAttribute('viewBox')
+
+      let width = 1000 // 默认宽度
+      let height = 1000 // 默认高度
+
+      if (svgWidth && svgHeight) {
+        width = parseInt(svgWidth)
+        height = parseInt(svgHeight)
+      } else if (viewBox) {
+        const [, , vbWidth, vbHeight] = viewBox.split(' ').map(Number)
+        width = vbWidth
+        height = vbHeight
+      }
+
+      const scale = 2 // 缩放因子，增加分辨率
+      const canvas = document.createElement('canvas')
+      canvas.width = width * scale
+      canvas.height = height * scale
+
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.scale(scale, scale)
+        const img = new Image()
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0)
+          const dataUrl = canvas.toDataURL('image/png')
+          setPngDataUrl(dataUrl)
+          toast.success('PNG 已生成')
+        }
+        img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(watermarkedSVG)))}`
+      }
+    } catch (error) {
+      toast.error('生成 PNG 失败')
+    }
+  }
+
+  const handleDownloadPNG = () => {
+    if (pngDataUrl) {
+      const link = document.createElement('a')
+      link.href = pngDataUrl
+      link.download = 'flexsvg_com_generated_image.png'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast.success('PNG 已下载')
+    } else {
+      toast.error('请先生成 PNG')
+    }
+  }
+
+  const handleCopyPNG = async () => {
+    if (pngDataUrl) {
+      try {
+        const response = await fetch(pngDataUrl)
+        const blob = await response.blob()
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob
+          })
+        ])
+        toast.success('PNG 已复制到剪贴板')
+      } catch (error) {
+        toast.error('复制 PNG 失败')
+      }
+    } else {
+      toast.error('请先生成 PNG')
     }
   }
 
@@ -39,10 +128,29 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">预览</h3>
           <div className="flex items-center">
-            <Button variant="ghost" size="icon" onClick={handleDownloadSVG}>
-              <FaDownload className="h-4 w-4" />
+            <Button onClick={handleDownloadSVG} variant="outline" className="mr-2">
+              <FaDownload className="h-4 w-4 mr-2" />
+              SVG
             </Button>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            {!pngDataUrl && (
+              <Button onClick={handleGeneratePNG} variant="outline" className="mr-2">
+                <FaDownload className="h-4 w-4 mr-2" />
+                PNG
+              </Button>
+            )}
+            {pngDataUrl && (
+              <>
+                <Button onClick={handleDownloadPNG} variant="outline" className="mr-2">
+                  <FaDownload className="h-4 w-4 mr-2" />
+                  PNG
+                </Button>
+                <Button onClick={handleCopyPNG} variant="outline" className="mr-2">
+                  <FaCopy className="h-4 w-4 mr-2" />
+                  PNG
+                </Button>
+              </>
+            )}
+            <Button onClick={onClose} variant="outline">
               <FaTimes className="h-4 w-4" />
             </Button>
           </div>

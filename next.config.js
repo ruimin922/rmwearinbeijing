@@ -10,6 +10,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['gif-encoder', 'convert-svg-to-png', 'png-js'],
+  }
 }
 
 module.exports = nextConfig

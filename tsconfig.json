@@ -20,6 +20,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "types": ["jsonwebtoken", "uuid"]
   },
   "include": [
     "next-env.d.ts",
