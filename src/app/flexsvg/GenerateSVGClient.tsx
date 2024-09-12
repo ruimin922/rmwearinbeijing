@@ -10,7 +10,6 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import type { CodeProps } from 'react-markdown/lib/ast-to-react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useUser } from '@clerk/nextjs'
 import { SVGPreview } from '@/components/SVGPreview'
@@ -106,52 +105,46 @@ export default function GenerateSVGClient() {
     <div className="flex flex-col h-full overflow-hidden p-2 sm:p-4">
       <div className="flex-grow overflow-hidden flex flex-col">
         <Card className="flex-grow flex flex-col overflow-hidden mb-2">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>生成结果</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-grow overflow-auto" ref={markdownRef}>
-            <ReactMarkdown
-              components={{
-                h1: ({ node, ...props }) => <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-blue-300" {...props} />,
-                h2: ({ node, ...props }) => <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3 text-blue-400" {...props} />,
-                h3: ({ node, ...props }) => <h3 className="text-lg sm:text-xl font-medium mb-2 text-blue-500" {...props} />,
-                p: ({ node, ...props }) => <p className="mb-3 sm:mb-4 text-gray-500 leading-relaxed" {...props} />,
-                ul: ({ node, ...props }) => <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 text-gray-500" {...props} />,
-                ol: ({ node, ...props }) => <ol className="list-decimal pl-4 sm:pl-5 mb-3 sm:mb-4 text-gray-500" {...props} />,
-                li: ({ node, ...props }) => <li className="mb-1 sm:mb-2" {...props} />,
-                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-blue-500 pl-3 sm:pl-4 italic my-3 sm:my-4 text-gray-600" {...props} />,
-                code({ inline, className, children, ...props }: CodeProps) {
-                  const match = /language-(\w+)/.exec(className || '')
-                  const isSVG = String(children).trim().startsWith('<svg')
-                  return !inline && (match || isSVG) ? (
-                    <SyntaxHighlighter
-                      {...props}
-                      style={vscDarkPlus}
-                      language={isSVG ? 'svg' : match ? match[1] : 'text'}
-                      PreTag="div"
-                      className="rounded-md bg-gray-900 p-3 sm:p-4 my-3 sm:my-4 text-sm sm:text-base"
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className="bg-gray-700 rounded px-1 py-0.5 text-xs sm:text-sm text-blue-300" {...props}>
-                      {children}
-                    </code>
-                  )
-                },
-              }}
-            >
-              {markdownContent}
-            </ReactMarkdown>
             {svgCode && (
               <Button 
-                className="w-full sm:w-36 h-18 bg-gray-700 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200 mb-4"
+                className="w-28 h-10 bg-gray-700 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200"
                 onClick={() => setShowSVGPreview(true)}
               >
                 <FaImage className="text-blue-400 text-xl mr-2" />
                 <span className="text-sm">查看SVG</span>
               </Button>
             )}
+          </CardHeader>
+          <CardContent className="flex-grow overflow-hidden relative">
+            <div className="absolute inset-0 overflow-auto px-4 sm:px-6 pb-8" ref={markdownRef}>
+              <ReactMarkdown
+                components={{
+                  code({node, className, children, ...props}) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    return match ? (
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        wrapLines={true}
+                        wrapLongLines={true}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code className={className} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
+                        {children}
+                      </code>
+                    )
+                  }
+                }}
+                className="leading-relaxed" // 增加行间距
+              >
+                {markdownContent}
+              </ReactMarkdown>
+            </div>
           </CardContent>
         </Card>
 
