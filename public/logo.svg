@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#39855E"/>
+  <text x="100" y="120" font-family="Brush Script MT, cursive" font-size="90" fill="#EEFDF4" text-anchor="middle">JH</text>
+  <path d="M30,30 L170,30 L170,170 L30,170 Z" fill="none" stroke="#EEFDF4" stroke-width="6"/>
+</svg>

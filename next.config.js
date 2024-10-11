@@ -9,9 +9,6 @@ const nextConfig = {
         pathname: '/outputs/**',
       },
     ],
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['gif-encoder', 'convert-svg-to-png', 'png-js'],
   }
 }
 

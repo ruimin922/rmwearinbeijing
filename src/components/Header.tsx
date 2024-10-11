@@ -1,0 +1,59 @@
+import React from 'react'
+import Link from 'next/link'
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs'
+import { Button } from "@/components/ui/button"
+
+interface NavItem {
+  href: string
+  label: string
+}
+
+interface HeaderProps {
+  navItems: NavItem[]
+  position?: 'fixed' | 'sticky' | 'static'
+  bgColor?: string
+  textColor?: string
+  logoSrc?: string
+  logoAlt?: string
+}
+
+export default function Header({
+  navItems,
+  position = 'sticky',
+  bgColor = 'bg-[#EEFDF4]',
+  textColor = 'text-[#1D1D35]',
+  logoSrc = '/logo.svg',
+  logoAlt = 'Jianhua.Art logo'
+}: HeaderProps) {
+  return (
+    <header className={`${position} top-0 z-50 w-full border-b border-[#39855E]/10 ${bgColor}/95 backdrop-blur supports-[backdrop-filter]:${bgColor}/60`}>
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <img src={logoSrc} alt={logoAlt} className="h-6 w-6" />
+            <span className={`hidden font-bold sm:inline-block text-[#39855E] ${textColor}`}>Jianhua.Art</span>
+          </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item, index) => (
+              <a key={index} className={`transition-colors hover:text-[#39855E] ${textColor}/60`} href={item.href}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button className="bg-[#39855E] hover:bg-[#39855E]/80 text-white">
+                Get started
+              </Button>
+            </SignInButton>
+          </SignedOut>
+        </div>
+      </div>
+    </header>
+  )
+}

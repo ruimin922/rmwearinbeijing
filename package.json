@@ -11,7 +11,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.54",
     "@clerk/localizations": "^2.8.1",
-    "@clerk/nextjs": "^5.7.1",
+    "@clerk/nextjs": "^5.7.2",
     "@hookform/resolvers": "^3.9.0",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@nivo/bar": "^0.87.0",
