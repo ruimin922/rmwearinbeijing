@@ -1,33 +1,42 @@
+'use client'
+
 import React from 'react'
 import Header from '@/components/Header'
+import { usePathname } from 'next/navigation'
 
 const dashboardNavItems = [
   { href: "/dashboard", label: "主页" },
   { href: "/dashboard/flexsvg", label: "生成" },
-  { href: "/dashboard/templates", label: "创作" },
-  { href: "/dashboard/assets", label: "广场" },
+  { href: "/dashboard/create", label: "创作" },
+  { href: "/dashboard/square", label: "广场" },
   { href: "/dashboard/settings", label: "设置" },
 ]
 
-export default function DashboardLayout({
+function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  const navItemsWithActiveState = dashboardNavItems.map(item => ({
+    ...item,
+    isActive: pathname === item.href
+  }))
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans text-[#1D1D35]">
+    <div className="flex flex-col min-h-screen bg-[#F8FAFC] font-sans text-[#1D1D35]">
       <Header 
-        navItems={dashboardNavItems}
+        navItems={navItemsWithActiveState}
         position="fixed"
         bgColor="bg-white"
         textColor="text-[#1D1D35]"
       />
-      <div className="flex">
-        {/* 如果需要侧边栏，可以在这里添加 */}
-        <main className="flex-1 p-6 mt-14">
-          {children}
-        </main>
-      </div>
+      <main className="flex-1 mt-14">
+        {children}
+      </main>
     </div>
   )
 }
+
+export default DashboardLayout

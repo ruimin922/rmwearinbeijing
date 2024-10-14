@@ -3,21 +3,22 @@ import Link from 'next/link'
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs'
 import { Button } from "@/components/ui/button"
 
-interface NavItem {
+export interface NavItem {
   href: string
   label: string
+  isActive: boolean
 }
 
 interface HeaderProps {
   navItems: NavItem[]
-  position?: 'fixed' | 'sticky' | 'static'
-  bgColor?: string
-  textColor?: string
+  position: string
+  bgColor: string
+  textColor: string
   logoSrc?: string
   logoAlt?: string
 }
 
-export default function Header({
+function Header({
   navItems,
   position = 'sticky',
   bgColor = 'bg-[#EEFDF4]',
@@ -34,10 +35,14 @@ export default function Header({
             <span className={`hidden font-bold sm:inline-block text-[#39855E] ${textColor}`}>Jianhua.Art</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item, index) => (
-              <a key={index} className={`transition-colors hover:text-[#39855E] ${textColor}/60`} href={item.href}>
+            {navItems.map((item) => (
+              <Link 
+                key={item.href}
+                href={item.href}
+                className={`transition-colors hover:text-[#39855E] ${textColor}/60 ${item.isActive ? 'font-bold' : ''}`}
+              >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -57,3 +62,5 @@ export default function Header({
     </header>
   )
 }
+
+export default Header

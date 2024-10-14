@@ -1,34 +1,32 @@
 'use client'
 
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useRef, useState, useCallback, useEffect } from 'react'
+import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FaPaperPlane, FaArrowLeft, FaCog, FaImage } from 'react-icons/fa'
+import { FaPaperPlane, FaArrowLeft, FaImage } from 'react-icons/fa'
 import { Loader2 } from "lucide-react"
-import { toast } from 'react-hot-toast'
 import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useUser } from '@clerk/nextjs'
 import { SVGPreview } from '@/components/SVGPreview'
-import { PromptManager } from '@/components/PromptManager'
-
-const defaultSysPrompt = ''
+import Image from 'next/image'
+import Markdown from '@/components/Markdown'
 
 export default function GenerateSVGClient() {
   const { user } = useUser()
-  const [query, setQuery] = useState('')
-  const [markdownContent, setMarkdownContent] = useState('')
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/gen-svg',
+  })
   const [svgCode, setSvgCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const markdownRef = useRef<HTMLDivElement>(null)
-  const [sysPrompt, setSysPrompt] = useState(defaultSysPrompt)
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [showSVGPreview, setShowSVGPreview] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [files, setFiles] = useState<FileList | undefined>(undefined)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -39,156 +37,123 @@ export default function GenerateSVGClient() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const generateSVG = useCallback(async (prompt: string) => {
-    if (!user) return
+  const handleFormSubmit = useCallback((event: React.FormEvent) => {
+    event.preventDefault()
+    handleSubmit(event, {
+      experimental_attachments: files,
+    })
+    setFiles(undefined)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [handleSubmit, files])
 
-    setIsLoading(true)
-    setError(null)
-    setMarkdownContent('')
-    setSvgCode('')
-    setShowSVGPreview(false)
-
-    try {
-      const response = await fetch('/api/gen-svg', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: prompt, userId: user.id, sysPrompt })
-      })
-
-      if (!response.ok) throw new Error('请求失败')
-      
-      const reader = response.body?.getReader()
-      if (!reader) throw new Error('无法读取响应流')
-
-      const decoder = new TextDecoder()
-      let accumulatedContent = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value)
-        accumulatedContent += chunk
-        setMarkdownContent(accumulatedContent)
-
-        const svgMatches = accumulatedContent.match(/<svg[\s\S]*?<\/svg>/gi)
-        if (svgMatches?.length) {
-          const latestSVG = svgMatches[svgMatches.length - 1]
-          setSvgCode(latestSVG)
-          setShowSVGPreview(true)
-        }
-
-        if (markdownRef.current) {
-          markdownRef.current.scrollTop = markdownRef.current.scrollHeight
-        }
+  useEffect(() => {
+    const latestMessage = messages[messages.length - 1]
+    if (latestMessage?.role === 'assistant') {
+      const svgMatches = latestMessage.content.match(/<svg[\s\S]*?<\/svg>/gi)
+      if (svgMatches?.length) {
+        const latestSVG = svgMatches[svgMatches.length - 1]
+        setSvgCode(latestSVG)
+        setShowSVGPreview(true)
       }
-
-      toast.success('SVG 生成成功')
-    } catch (error) {
-      console.error('生成 SVG 时出错:', error)
-      setError(error instanceof Error ? error.message : '生成 SVG 时发生未知错误')
-      toast.error('生成 SVG 失败')
-    } finally {
-      setIsLoading(false)
     }
-  }, [user, sysPrompt])
-
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault()
-    if (query.trim()) {
-      generateSVG(query)
-      setQuery('')
-    }
-  }, [query, generateSVG])
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   return (
-    <div className="flex flex-col h-full overflow-hidden p-2 sm:p-4">
-      <div className="flex-grow overflow-hidden flex flex-col">
-        <Card className="flex-grow flex flex-col overflow-hidden mb-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>生成结果</CardTitle>
-            {svgCode && (
-              <Button 
-                className="w-28 h-10 bg-gray-700 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors duration-200"
-                onClick={() => setShowSVGPreview(true)}
-              >
-                <FaImage className="text-blue-400 text-xl mr-2" />
-                <span className="text-sm">查看SVG</span>
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent className="flex-grow overflow-hidden relative">
-            <div className="absolute inset-0 overflow-auto px-4 sm:px-6 pb-8" ref={markdownRef}>
-              <ReactMarkdown
-                components={{
-                  code({node, className, children, ...props}) {
-                    const match = /language-(\w+)/.exec(className || '')
-                    return match ? (
-                      <SyntaxHighlighter
-                        style={vscDarkPlus}
-                        language={match[1]}
-                        PreTag="div"
-                        wrapLines={true}
-                        wrapLongLines={true}
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code className={className} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
-                        {children}
-                      </code>
-                    )
-                  }
-                }}
-                className="leading-relaxed" // 增加行间距
-              >
-                {markdownContent}
-              </ReactMarkdown>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="flex-shrink-0">
-          <CardContent className="p-2 sm:p-4">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex w-full items-center gap-2">
-                <Link href="/" className="flex items-center text-gray-600 hover:text-gray-800">
-                  <FaArrowLeft className="mr-2" />
-                </Link>
-                <Input
-                  type="text"
-                  placeholder="描述你想要的 SVG 图像..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="flex-grow"
-                  disabled={isLoading}
-                />
-                <div className="flex w-full sm:w-auto gap-2 mt-2 sm:mt-0">
-                  <Button type="submit" disabled={isLoading} className="flex-1 sm:flex-none">
-                    {isLoading ? 
-                      <Loader2 className="h-4 w-4 animate-spin" /> : 
-                      <FaPaperPlane className="h-4 w-4" />
-                    }
-                    <span className="hidden sm:inline ml-2">
-                      {isLoading ? '生成中...' : '生成'}
-                    </span>
-                  </Button>
-                  <Button onClick={() => setIsSheetOpen(true)} className="flex-1 sm:flex-none">
-                    <FaCog className="h-4 w-4" />
-                  </Button>
-                </div>
+    <div className="flex flex-col h-[calc(100vh-3.5rem-1.5rem)] bg-[#EEFDF4]">
+      <main className="flex-1 overflow-hidden flex flex-col">
+        <div className="container mx-auto p-4 max-w-7xl h-full flex flex-col">
+          <Card className="rounded-lg border bg-white text-[#1D1D35] shadow-sm flex-grow flex flex-col overflow-hidden mb-4">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-[#39855E]">生成结果</CardTitle>
+              {svgCode && (
+                <Button 
+                  className="w-28 h-10 bg-[#39855E] rounded-md flex items-center justify-center cursor-pointer hover:bg-[#39855E]/80 transition-colors duration-200 text-white"
+                  onClick={() => setShowSVGPreview(true)}
+                >
+                  <FaImage className="text-white text-xl mr-2" />
+                  <span className="text-sm">查看SVG</span>
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="flex-grow overflow-auto">
+              <div className="h-full" ref={markdownRef}>
+                {messages.map(m => (
+                  <div key={m.id} className="whitespace-pre-wrap mb-4">
+                    <strong>{m.role === 'user' ? '用户: ' : 'AI: '}</strong>
+                    <Markdown>
+                      {m.content}
+                    </Markdown>
+                    <div>
+                      {m?.experimental_attachments
+                        ?.filter(attachment =>
+                          attachment?.contentType?.startsWith('image/'),
+                        )
+                        .map((attachment, index) => (
+                          <Image
+                            key={`${m.id}-${index}`}
+                            src={attachment.url}
+                            width={500}
+                            height={500}
+                            alt={attachment.name ?? `attachment-${index}`}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
 
-      <PromptManager
-        isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-        onSysPromptChange={setSysPrompt}
-        isMobile={isMobile}
-      />
+          <Card className="rounded-lg border bg-white text-[#1D1D35] shadow-sm">
+            <CardContent className="p-2 sm:p-4">
+              <form onSubmit={handleFormSubmit} className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="flex w-full items-center gap-2">
+                  <Link href="/" className="flex items-center text-[#39855E] hover:text-[#39855E]/80">
+                    <FaArrowLeft className="mr-2" />
+                  </Link>
+                  <Input
+                    type="text"
+                    placeholder="描述你想要的 SVG 图像..."
+                    value={input}
+                    onChange={handleInputChange}
+                    className="flex-grow"
+                    disabled={isLoading}
+                  />
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={event => {
+                      if (event.target.files) {
+                        setFiles(event.target.files)
+                      }
+                    }}
+                    multiple
+                    ref={fileInputRef}
+                  />
+                  <div className="flex w-full sm:w-auto gap-2 mt-2 sm:mt-0">
+                    <Button type="submit" disabled={isLoading} className="flex-1 sm:flex-none bg-[#39855E] hover:bg-[#39855E]/80 text-white">
+                      {isLoading ? 
+                        <Loader2 className="h-4 w-4 animate-spin" /> : 
+                        <FaPaperPlane className="h-4 w-4" />
+                      }
+                      <span className="hidden sm:inline ml-2">
+                        {isLoading ? '生成中...' : '生成'}
+                      </span>
+                    </Button>
+                    <Button onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none bg-[#39855E] hover:bg-[#39855E]/80 text-white">
+                      <FaImage className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
 
       {showSVGPreview && <SVGPreview svgCode={svgCode} onClose={() => setShowSVGPreview(false)} />}
     </div>
