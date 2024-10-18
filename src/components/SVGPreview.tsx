@@ -126,31 +126,46 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded-lg flex flex-col w-full h-full sm:w-auto sm:h-auto" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">预览</h3>
-          <div className="flex items-center">
-            <Button onClick={handleDownloadSVG} variant="outline" className="mr-2">
-              <FaDownload className="h-4 w-4 mr-2" />
+          <h4 className="text-xl font-bold text-[#39855E]">预览</h4>
+          <div className="flex items-center ml-6">
+            <Button 
+              onClick={handleDownloadSVG} 
+              className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+            >
+              <FaDownload className="h-4 w-4 mr-1" />
               SVG
             </Button>
             {!pngDataUrl && (
-              <Button onClick={handleGeneratePNG} variant="outline" className="mr-2">
-                <FaDownload className="h-4 w-4 mr-2" />
+              <Button 
+                onClick={handleGeneratePNG} 
+                className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+              >
+                <FaDownload className="h-4 w-4 mr-1" />
                 PNG
               </Button>
             )}
             {pngDataUrl && (
               <>
-                <Button onClick={handleDownloadPNG} variant="outline" className="mr-2">
-                  <FaDownload className="h-4 w-4 mr-2" />
+                <Button 
+                  onClick={handleDownloadPNG} 
+                  className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+                >
+                  <FaDownload className="h-4 w-4 mr-1" />
                   PNG
                 </Button>
-                <Button onClick={handleCopyPNG} variant="outline" className="mr-2">
-                  <FaCopy className="h-4 w-4 mr-2" />
+                <Button 
+                  onClick={handleCopyPNG} 
+                  className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+                >
+                  <FaCopy className="h-4 w-4 mr-1" />
                   PNG
                 </Button>
               </>
             )}
-            <Button onClick={onClose} variant="outline">
+            <Button 
+              onClick={onClose} 
+              className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform"
+            >
               <FaTimes className="h-4 w-4" />
             </Button>
           </div>
