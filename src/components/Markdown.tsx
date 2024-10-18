@@ -42,7 +42,7 @@ export default function Markdown(props: {
         >
             { children }
         </ReactMarkdown>
-    ), [children])
+    ), [children, className, hiddenCodeCopyButton])
 }
 
 export function CodeBlock(props: any) {
@@ -60,10 +60,12 @@ export function CodeBlock(props: any) {
                     style={{
                         backgroundColor: theme.palette.mode === 'dark' ? '#333' : '#f1f1f1',
                         padding: '2px 4px',
-                        marigin: '0 4px',
+                        margin: '0 4px',
                         borderRadius: '4px',
                         border: '1px solid',
                         borderColor: theme.palette.mode === 'dark' ? '#444' : '#ddd',
+                        wordBreak: 'break-word',
+                        whiteSpace: 'pre-wrap',
                     }}
                 >
                     {children}
@@ -71,7 +73,7 @@ export function CodeBlock(props: any) {
             )
         }
         return (
-            <div>
+            <div className="w-full overflow-hidden">
                 <div
                     style={{
                         display: 'flex',
@@ -118,26 +120,31 @@ export function CodeBlock(props: any) {
                         )
                     }
                 </div>
-                <SyntaxHighlighter
-                    children={String(children).replace(/\n$/, '')}
-                    style={
-                        theme.palette.mode === 'dark'
-                            ? atomDark
-                            : a11yDark
-                    }
-                    language={language}
-                    PreTag="div"
-                    customStyle={{
-                        marginTop: '0',
-                        margin: '0',
-                        borderTopLeftRadius: '0',
-                        borderTopRightRadius: '0',
-                        borderBottomLeftRadius: '0.3rem',
-                        borderBottomRightRadius: '0.3rem',
-                        border: 'none',
-                    }}
-                />
+                <div className="overflow-x-auto">
+                    <SyntaxHighlighter
+                        style={theme.palette.mode === 'dark' ? atomDark : a11yDark}
+                        language={language}
+                        PreTag="div"
+                        customStyle={{
+                            marginTop: '0',
+                            margin: '0',
+                            borderTopLeftRadius: '0',
+                            borderTopRightRadius: '0',
+                            borderBottomLeftRadius: '0.3rem',
+                            borderBottomRightRadius: '0.3rem',
+                            border: 'none',
+                            wordBreak: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                            overflowWrap: 'break-word',
+                            maxWidth: '100%',
+                        }}
+                        wrapLines={true}
+                        wrapLongLines={true}
+                    >
+                        {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                </div>
             </div>
         )
-    }, [props.children, theme.palette.mode])
+    }, [props, t, theme.palette.mode])
 }

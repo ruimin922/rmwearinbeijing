@@ -27,10 +27,22 @@ const config = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          bg: "#EEFDF4",
+          text: "#1D1D35",
+          button: {
+            bg: "#E8F5E9",
+            text: "#39855E",
+            hover: {
+              bg: "#C8E6C9",
+              text: "#2E7D32",
+            },
+          },
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          bg: "#FFFFFF",
+          border: "#E8F5E9",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

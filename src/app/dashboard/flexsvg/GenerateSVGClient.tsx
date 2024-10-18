@@ -4,7 +4,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react'
 import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { FaPaperPlane, FaRobot, FaPaperclip, FaHistory, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { FaPaperPlane, FaRobot, FaPaperclip, FaHistory, FaPlus, FaChevronDown, FaChevronUp, FaUser } from 'react-icons/fa'
 import { Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useUser } from '@clerk/nextjs'
@@ -18,6 +18,12 @@ const MOBILE_BREAKPOINT = 640
 const DEFAULT_PNG_SIZE = 1000
 const BOTS = ['默认SVG', '思考者', 'LOGO设计', '卡通形象']
 
+interface Attachment {
+  contentType?: string;
+  url: string;
+  name?: string;
+}
+
 // 2. 提取工具函数
 function extractSvgFromMessage(content: string) {
   return content.match(/<svg[\s\S]*?<\/svg>/gi) || []
@@ -25,9 +31,17 @@ function extractSvgFromMessage(content: string) {
 
 function GenerateSVGClient() {
   const { user } = useUser()
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/gen-svg',
-  })
+    onResponse: () => {
+      setIsAIResponding(true);
+    },
+    onFinish: () => {
+      setIsAIResponding(false);
+    },
+  });
+
+  const [isAIResponding, setIsAIResponding] = useState(false);
 
   // 3. 状态管理优化
   const [state, setState] = useState({
@@ -68,7 +82,7 @@ function GenerateSVGClient() {
     if (refs.fileInput.current) {
       refs.fileInput.current.value = ''
     }
-  }, [handleSubmit, state.files])
+  }, [handleSubmit, state.files, refs.fileInput])
 
   // 7. 消息处理优化
   useEffect(() => {
@@ -85,7 +99,7 @@ function GenerateSVGClient() {
       }
     }
     refs.messagesEnd.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, state.processedSvgs])
+  }, [messages, state.processedSvgs, refs.messagesEnd])
 
   // 8. 事件处理函数优化
   const handlePreviewClick = useCallback((index: number) => {
@@ -97,39 +111,67 @@ function GenerateSVGClient() {
   }, [])
 
   const handleFileUpload = useCallback(() => {
-    refs.fileInput.current?.click()
-  }, [])
+    if (refs.fileInput.current) {
+      refs.fileInput.current.click()
+    }
+  }, [refs.fileInput])
 
   const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({ ...prev, files: event.target.files || undefined }))
   }, [])
 
-  const toggleExpand = useCallback(() => {
+  const toggleExpand = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
     setState(prev => ({ ...prev, isExpanded: !prev.isExpanded }))
   }, [])
 
   // 9. 渲染优化
-  const renderMessages = useCallback(() => (
-    messages.map(m => (
-      <div key={m.id} className="whitespace-pre-wrap mb-4">
-        <strong>{m.role === 'user' ? '用户: ' : 'AI: '}</strong>
-        <Markdown>{m.content}</Markdown>
-        <div>
-          {m?.experimental_attachments
-            ?.filter(attachment => attachment?.contentType?.startsWith('image/'))
-            .map((attachment, index) => (
-              <Image
-                key={`${m.id}-${index}`}
-                src={attachment.url}
-                width={500}
-                height={500}
-                alt={attachment.name ?? `attachment-${index}`}
-              />
-            ))}
+  const renderUserMessage = useCallback((message: any) => (
+    <div key={message.id} className="flex justify-end mb-4">
+      <div className="flex flex-row-reverse items-start max-w-[80%]">
+        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500 ml-2">
+          <FaUser className="text-white" />
+        </div>
+        <div className="rounded-lg p-3 bg-blue-100">
+          <div className="max-w-full overflow-hidden">
+            <Markdown className="prose max-w-none text-left">{message.content}</Markdown>
+          </div>
         </div>
       </div>
-    ))
-  ), [messages])
+    </div>
+  ), [])
+
+  const renderBotMessage = useCallback((message: any) => (
+    <div key={message.id} className="flex justify-start mb-4">
+      <div className="flex flex-row items-start max-w-[80%]">
+        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-green-500 mr-2">
+          <FaRobot className="text-white" />
+        </div>
+        <div className="rounded-lg p-3 bg-green-100 overflow-hidden">
+          <div className="max-w-full overflow-hidden">
+            <Markdown className="prose max-w-none">{message.content}</Markdown>
+          </div>
+          <div>
+          {message?.experimental_attachments
+              ?.filter((attachment: Attachment) => attachment?.contentType?.startsWith('image/'))
+              .map((attachment: Attachment, index: number) => (
+                <Image
+                  key={`${message.id}-${index}`}
+                  src={attachment.url}
+                  width={500}
+                  height={500}
+                  alt={attachment.name ?? `attachment-${index}`}
+                />
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  ), [])
+
+  const renderMessages = useCallback(() => (
+    messages.map(m => m.role === 'user' ? renderUserMessage(m) : renderBotMessage(m))
+  ), [messages, renderUserMessage, renderBotMessage])
 
   const renderSvgPreviews = useCallback(() => (
     <AnimatePresence>
@@ -152,10 +194,10 @@ function GenerateSVGClient() {
   ), [state.svgPreviews, handlePreviewClick])
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem-1.5rem)] bg-[#EEFDF4]">
+    <div className="flex flex-col h-[calc(100vh-3.5rem-1.5rem)] bg-primary-bg">
       <main className="flex-1 overflow-hidden flex flex-col">
         <div className="container mx-auto p-4 max-w-7xl h-full flex flex-col">
-          <div className="bg-[#EEFDF4] text-[#1D1D35] flex-grow flex flex-col overflow-hidden mb-4">
+          <div className="bg-primary-bg text-primary-text flex-grow flex flex-col overflow-hidden mb-4">
             <div className="flex-grow overflow-hidden p-4">
               <div className="h-full overflow-y-auto scrollbar-hide" ref={refs.markdown}>
                 {renderMessages()}
@@ -168,39 +210,47 @@ function GenerateSVGClient() {
             {renderSvgPreviews()}
           </div>
 
-          <Card className="rounded-lg border bg-white text-[#1D1D35] shadow-sm">
+          <Card className="rounded-lg border bg-secondary-bg text-primary-text shadow-sm">
             <CardContent className="p-4">
               <form onSubmit={handleFormSubmit} className="flex flex-col">
                 <div className="flex justify-between mb-2 items-center">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1">
                     {BOTS.map((bot) => (
                       <Button
                         key={bot}
                         onClick={() => handleBotSelection(bot)}
                         className={`
                           ${state.selectedBot === bot 
-                            ? 'bg-[#E8F5E9] text-[#39855E]' 
-                            : 'bg-transparent text-[#39855E] border border-[#E8F5E9]'
+                            ? 'bg-primary-button-bg text-primary-button-text' 
+                            : 'bg-transparent text-primary-button-text border border-primary-button-bg'
                           } 
-                          px-3 py-0.5 rounded-2xl text-sm
-                          hover:bg-[#C8E6C9] hover:text-[#2E7D32] 
+                          px-2 py-0.5 rounded-full text-xs
+                          hover:bg-primary-button-hover-bg hover:text-primary-button-hover-text 
                           hover:scale-95 transition-transform
+                          flex items-center h-6
                         `}
                       >
-                        <FaRobot className="mr-1 text-xs" />
+                        <FaRobot className="mr-0.5 text-[10px]" />
                         {bot}
                       </Button>
                     ))}
                   </div>
-                  <div className="flex space-x-2">
-                    <Button onClick={handleFileUpload} className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform">
-                      <FaPaperclip />
+                  <div className="flex space-x-1">
+                    <Button 
+                      onClick={handleFileUpload} 
+                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
+                    >
+                      <FaPaperclip className="text-xs" />
                     </Button>
-                    <Button className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform">
-                      <FaHistory />
+                    <Button 
+                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
+                    >
+                      <FaHistory className="text-xs" />
                     </Button>
-                    <Button className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform">
-                      <FaPlus />
+                    <Button 
+                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
+                    >
+                      <FaPlus className="text-xs" />
                     </Button>
                   </div>
                 </div>
@@ -209,7 +259,7 @@ function GenerateSVGClient() {
                     placeholder="描述你想要的 SVG 图像..."
                     value={input}
                     onChange={handleInputChange}
-                    className={`flex-grow mb-2 border border-[#E8F5E9] rounded-lg transition-all duration-300 ${state.isExpanded ? 'h-[500px]' : 'h-[100px]'} resize-none`}
+                    className={`flex-grow mb-2 border border-secondary-border rounded-lg transition-all duration-300 ${state.isExpanded ? 'h-[500px]' : 'h-[100px]'} resize-none`}
                     disabled={state.isLoading}
                   />
                   <input
@@ -221,16 +271,23 @@ function GenerateSVGClient() {
                   />
                   <Button 
                     onClick={toggleExpand}
-                    className="absolute bottom-2 right-12 p-2 rounded-md bg-white hover:bg-[#E8F5E9] text-[#39855E] transition-colors"
+                    className="absolute bottom-2 right-12 p-2 rounded-md bg-white hover:bg-[#E8F5E9] text-[#39855E] transition-colors w-8 h-8 flex items-center justify-center mb-1"
                   >
-                    {state.isExpanded ? <FaChevronUp className="h-4 w-4" /> : <FaChevronDown className="h-4 w-4" />}
+                    {state.isExpanded ? <FaChevronDown className="h-4 w-4" /> : <FaChevronUp className="h-4 w-4" />}
                   </Button>
                   <Button 
                     type="submit" 
-                    disabled={state.isLoading} 
-                    className="absolute bottom-2 right-2 p-2 rounded-md bg-white hover:bg-[#E8F5E9] text-[#39855E] transition-colors"
+                    disabled={isLoading || isAIResponding}
+                    className={`
+                      absolute bottom-2 right-2 p-2 rounded-md
+                      transition-colors w-8 h-8 flex items-center justify-center mb-1
+                      ${isLoading || isAIResponding
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-white hover:bg-[#E8F5E9] text-[#39855E]'
+                      }
+                    `}
                   >
-                    {state.isLoading ? 
+                    {isLoading || isAIResponding ? 
                       <Loader2 className="h-4 w-4 animate-spin" /> :
                       <FaPaperPlane className="h-4 w-4" />
                     }
