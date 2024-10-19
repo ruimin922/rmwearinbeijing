@@ -1,71 +1,74 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
+"use client"
 
-// Mock data for the application cards
-const apps = [
-  {
-    id: 1,
-    title: "线条动物",
-    description: "输入动物名称，生成简约独特的线条动物",
-    icon: "/logo.svg?height=64&width=64",
-    author: { name: "Creator", avatar: "/logo.svg?height=24&width=24" },
-    stats: { views: "1.39k", likes: "2.5k", comments: "248" }
-  },
-  {
-    id: 2,
-    title: "看图识字",
-    description: "幼儿园小朋友看图识字",
-    icon: "/logo.svg?height=64&width=64",
-    author: { name: "Author", avatar: "/logo.svg?height=24&width=24" },
-    stats: { views: "840", likes: "1.1k", comments: "22" }
-  },
-  // Add more mock data for other apps...
+import React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+
+const data = [
+  { name: '1月', 作品数: 4 },
+  { name: '2月', 作品数: 3 },
+  { name: '3月', 作品数: 2 },
+  { name: '4月', 作品数: 5 },
+  { name: '5月', 作品数: 7 },
+  { name: '6月', 作品数: 6 },
 ]
 
-export default function Dashboard() {
+export default function DashboardPage() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">应用仪表盘</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {apps.map((app) => (
-          <Card key={app.id} className="overflow-hidden flex flex-col">
-            <CardContent className="p-4 flex-grow">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <img
-                    src={app.icon}
-                    alt={app.title}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <h2 className="text-lg font-semibold">{app.title}</h2>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Link
-                      href="#"
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      {app.author.name}
-                    </Link>
-                    <Avatar className="w-5 h-5">
-                      <AvatarImage src={app.author.avatar} alt={app.author.name} />
-                      <AvatarFallback>{app.author.name[0]}</AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <p className="text-sm text-gray-600">{app.description}</p>
-                </div>
-              </div>
-            </CardContent>
-            <div className="bg-gray-50 px-4 py-2 flex justify-between items-center text-xs text-gray-500 mt-auto">
-              <span>{app.stats.views} 浏览</span>
-              <span>{app.stats.likes} 喜欢</span>
-              <span>{app.stats.comments} 评论</span>
-            </div>
-          </Card>
-        ))}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">仪表盘</h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">总作品数</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">128</div>
+            <p className="text-xs text-muted-foreground">
+              较上月增长 10%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">本月创作</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-muted-foreground">
+              较上月增长 5%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">收藏数</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">56</div>
+            <p className="text-xs text-muted-foreground">
+              较上月增长 15%
+            </p>
+          </CardContent>
+        </Card>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>月度创作统计</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="作品数" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   )
 }

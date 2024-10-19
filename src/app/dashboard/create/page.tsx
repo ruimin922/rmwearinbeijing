@@ -10,6 +10,7 @@ export default function Page() {
     });
 
   return (
+    <div className="container mx-auto p-4">
     <>
       {messages.map(message => (
         <div key={message.id}>
@@ -37,5 +38,6 @@ export default function Page() {
         <button type="submit">Submit</button>
       </form>
     </>
+    </div>
   );
 }
