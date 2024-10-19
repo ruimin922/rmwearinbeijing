@@ -15,6 +15,7 @@ function DashboardLayout({
 }) {
   const pathname = usePathname()
 
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-[#F8FAFC] font-sans text-[#1D1D35] w-full">
