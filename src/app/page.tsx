@@ -7,21 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link'
-import Header from '@/components/Header'
+import Header, { NavItem } from '@/components/Header'
 
-const homeNavItems = [
-  { href: "#features", label: "功能" },
-  { href: "#pricing", label: "价格" },
-  { href: "#reviews", label: "评价" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#vs", label: "对比" },
-  { href: "/dashboard", label: "免费海报编辑器" },
+const homeNavItems: NavItem[] = [
+  { href: "#features", label: "功能", isActive: false },
+  { href: "#pricing", label: "价格", isActive: false },
+  { href: "#reviews", label: "评价", isActive: false },
+  { href: "#faq", label: "FAQ", isActive: false },
+  { href: "#vs", label: "对比", isActive: false },
+  { href: "/dashboard", label: "免费海报编辑器", isActive: false },
 ]
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#EEFDF4] font-sans text-[#1D1D35]">
-      <Header navItems={homeNavItems} />
+      <Header navItems={homeNavItems} position="relative" bgColor="bg-transparent" textColor="text-[#1D1D35]" />
 
       <main>
         <section className="max-w-7xl mx-auto flex flex-col lg:flex-col items-center justify-center gap-16 lg:gap-20 px-8 py-8 lg:pt-20 lg:pb-0 relative">
@@ -163,7 +163,7 @@ export default function HomePage() {
                   features: [
                     "每月50次AI设计",
                     "基础logo和SVG创作",
-                    "标准客户支持"
+                    "标准客��支持"
                   ]
                 },
                 {
