@@ -20,31 +20,31 @@ const homeNavItems: NavItem[] = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#EEFDF4] font-sans text-[#1D1D35]">
+    <div className="min-h-screen bg-white font-sans text-[#1D1D35]">
       <Header navItems={homeNavItems} position="relative" bgColor="bg-transparent" textColor="text-[#1D1D35]" />
 
       <main>
         <section className="max-w-7xl mx-auto flex flex-col lg:flex-col items-center justify-center gap-16 lg:gap-20 px-8 py-8 lg:pt-20 lg:pb-0 relative">
           <div className="max-w-4xl flex flex-col gap-10 lg:gap-12 items-center justify-center text-center z-10">
-            <p className="border border-[#39855E] px-4 py-1 rounded-full bg-[#39855E]/10 text-sm">
+            <p className="border border-flexsvg-blue px-4 py-1 rounded-full bg-flexsvg-blue/10 text-sm">
               专为 <b>设计爱好者和普通用户</b> 打造
             </p>
-            <h1 className="font-extrabold text-6xl lg:text-7xl tracking-tight md:-mb-4 text-[#39855E]">
+            <h1 className="font-extrabold text-6xl lg:text-7xl tracking-tight md:-mb-4 text-transparent bg-clip-text bg-gradient-to-r from-flexsvg-blue to-flexsvg-green">
               <p className="leading-tight">AI驱动的快速设计助理</p>
             </h1>
             <p className="text-lg opacity-80 leading-relaxed text-pretty">
-              Jianhua.Art 让您轻松创作 logo、动画、SVG 图形，并进行图片处理。比 Canva 更强大，比想象更简单。
+              FlexSVG 让您轻松创作 logo、动画、SVG 图形，并进行图片处理。比 Canva 更强大，比想象更简单。
             </p>
-            <Button className="text-lg px-8 py-6 bg-[#39855E] hover:bg-[#39855E]/80 text-white">
-              立即体验 <ArrowRight className="ml-2 h-4 w-4" />
+            <Button className="text-lg px-8 py-6 bg-gradient-to-r from-flexsvg-blue to-flexsvg-green hover:from-flexsvg-blue/80 hover:to-flexsvg-green/80 text-white">
+              免费体验 <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-          <div className="hidden lg:flex w-full max-h-[600px] overflow-hidden rounded-t-[30px] border-8 border-b-0 border-[#39855E]/80 shadow-2xl">
+          <div className="hidden lg:flex w-full max-h-[600px] overflow-hidden rounded-t-[30px] border-8 border-b-0 border-flexsvg-blue/80 shadow-2xl">
             <AspectRatio ratio={16/9}>
               <div className="relative w-full h-full overflow-hidden">
                 <img
                   src="/pTDBHJmcSKW54kw1M8a_ug.png"
-                  alt="Jianhua.Art 演示"
+                  alt="FlexSVG 演示"
                   className="w-full object-cover object-top transition-transform duration-700 ease-in-out hover:translate-y-[-20%]"
                 />
               </div>
@@ -54,11 +54,11 @@ export default function HomePage() {
 
         <section className="bg-white">
           <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-            <h2 className="max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 text-pretty text-[#39855E]">
+            <h2 className="max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 text-pretty text-transparent bg-clip-text bg-gradient-to-r from-flexsvg-blue to-flexsvg-green">
               设计困难？不再是问题！
             </h2>
             <p className="mx-auto leading-relaxed mb-12 md:mb-20 text-pretty max-w-screen-lg">
-              没有设计经验？找不到合适的工具？设计软件太复杂？Jianhua.Art 为您解决一切！
+              没有设计经验？找不到合适的工具？设计软件太复杂？FlexSVG 为您解决一切！
             </p>
             <div className="lg:gap-[1px] gap-4 grid grid-cols-2 lg:grid-cols-4 lg:rounded-xl overflow-hidden text-xl lg:shadow">
               {[
@@ -70,7 +70,7 @@ export default function HomePage() {
                 <div key={index} className="aspect-auto lg:aspect-square overflow-hidden">
                   <div className="flex flex-col items-center lg:hover:-translate-y-24 transition-all duration-300 lg:rounded-none rounded-xl overflow-hidden shadow lg:shadow-none">
                     <img src={item.img} alt={`problem${index + 1}`} className="aspect-square object-cover shadow-xl opacity-90" />
-                    <p className="bg-[#39855E] text-white p-2 w-full h-24 items-center flex justify-center">
+                    <p className="bg-gradient-to-r from-flexsvg-blue to-flexsvg-green text-white p-2 w-full h-24 items-center flex justify-center">
                       {item.text}
                     </p>
                   </div>
@@ -80,9 +80,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#EEFDF4]">
+        <section className="bg-white">
           <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-            <h2 className="max-w-screen-lg mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 text-pretty text-[#39855E]">
+            <h2 className="max-w-screen-lg mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8 text-pretty text-transparent bg-clip-text bg-gradient-to-r from-flexsvg-blue to-flexsvg-green">
               设计质量不满意？创作效率低下？
             </h2>
             <p className="mx-auto leading-relaxed mb-12 md:mb-20 text-pretty max-w-screen-lg">
@@ -99,15 +99,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-[#39855E] glass" id="vs">
+        <section className="bg-gradient-to-r from-flexsvg-blue to-flexsvg-green glass" id="vs">
           <div className="max-w-6xl mx-auto px-8 py-16 md:py-40 text-white">
             <h2 className="text-center font-black text-3xl md:text-5xl tracking-tight mb-12 md:mb-20">
-              Jianhua.Art 与其他工具对比
+              FlexSVG 与其他工具对比
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 justify-center items-center md:items-start gap-8 md:gap-0">
               <Card className="h-full bg-white/90 p-8 md:p-10 rounded-xl w-full shadow-xl">
                 <CardHeader>
-                  <CardTitle className="font-bold text-lg mb-4 text-[#39855E]">Jianhua.Art 不是：</CardTitle>
+                  <CardTitle className="font-bold text-lg mb-4 text-flexsvg-blue">FlexSVG 不是：</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-1.5">
@@ -118,16 +118,16 @@ export default function HomePage() {
                       "单一功能的图形处理工具",
                     ].map((item, index) => (
                       <li key={index} className="flex gap-2 items-center">
-                        <ArrowRight className="w-4 h-4 shrink-0 text-[#00A765]" />
+                        <ArrowRight className="w-4 h-4 shrink-0 text-flexsvg-blue" />
                         {item}
                       </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
-              <Card className="h-full bg-[#EEFDF4] text-[#1D1D35] p-8 md:p-10 rounded-xl w-full md:scale-110 shadow-xl">
+              <Card className="h-full bg-white text-[#1D1D35] p-8 md:p-10 rounded-xl w-full md:scale-110 shadow-xl">
                 <CardHeader>
-                  <CardTitle className="font-bold text-lg mb-4 text-[#39855E]">Jianhua.Art 是：</CardTitle>
+                  <CardTitle className="font-bold text-lg mb-4 text-flexsvg-green">FlexSVG 是：</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-1.5">
@@ -139,7 +139,7 @@ export default function HomePage() {
                       "比Canva更强大、更简单的设计工具",
                     ].map((item, index) => (
                       <li key={index} className="flex gap-2 items-center">
-                        <Check className="w-4 h-4 shrink-0 text-[#00A765]" />
+                        <Check className="w-4 h-4 shrink-0 text-flexsvg-green" />
                         {item}
                       </li>
                     ))}
@@ -150,9 +150,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-20 bg-gradient-to-br from-[#EEFDF4] to-white">
+        <section className="relative overflow-hidden py-20 bg-gradient-to-br from-white to-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-center font-bold text-3xl md:text-5xl mb-12 text-[#39855E]">
+            <h2 className="text-center font-bold text-3xl md:text-5xl mb-12 text-transparent bg-clip-text bg-gradient-to-r from-flexsvg-blue to-flexsvg-green">
               选择适合您的计划
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -163,7 +163,8 @@ export default function HomePage() {
                   features: [
                     "每月50次AI设计",
                     "基础logo和SVG创作",
-                    "标准客��支持"
+                    "标准客户支持",
+                    "基础图片处理功能"
                   ]
                 },
                 {
@@ -188,17 +189,17 @@ export default function HomePage() {
                 }
               ].map((plan, index) => (
                 <div key={index} className="bg-white rounded-lg shadow-xl p-8">
-                  <h3 className="text-xl font-bold mb-4 text-[#39855E]">{plan.title}</h3>
+                  <h3 className="text-xl font-bold mb-4 text-flexsvg-blue">{plan.title}</h3>
                   <p className="text-3xl font-bold mb-6 text-[#1D1D35]">{plan.price}<span className="text-sm font-normal">/月</span></p>
                   <ul className="mb-8">
                     {plan.features.map((feature, fIndex) => (
                       <li key={fIndex} className="flex items-center mb-2">
-                        <Check className="w-5 h-5 text-[#00A765] mr-2" />
+                        <Check className="w-5 h-5 text-flexsvg-green mr-2" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full bg-[#39855E] hover:bg-[#39855E]/80 text-white">选择方案</Button>
+                  <Button className="w-full bg-gradient-to-r from-flexsvg-blue to-flexsvg-green hover:from-flexsvg-blue/80 hover:to-flexsvg-green/80 text-white">选择方案</Button>
                 </div>
               ))}
             </div>
@@ -206,21 +207,21 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="bg-[#EEFDF4] border-t border-[#39855E]/10">
+      <footer className="bg-white border-t border-flexsvg-blue/10">
         <div className="max-w-7xl mx-auto px-8 py-24">
           <div className="flex lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
             <div className="w-64 flex-shrink-0 md:mx-0 mx-auto text-center md:text-left">
               <Link href="/" className="flex gap-2 justify-center md:justify-start items-center">
                 <Avatar>
-                  <AvatarImage src="/logo.svg" alt="Jianhua.Art logo" />
-                  <AvatarFallback>JA</AvatarFallback>
+                  <AvatarImage src="/logo.svg" alt="FlexSVG logo" />
+                  <AvatarFallback>FS</AvatarFallback>
                 </Avatar>
                 <strong className="font-extrabold tracking-tight text-base md:text-lg">
-                  Jianhua.Art
+                  FlexSVG
                 </strong>
               </Link>
               <p className="mt-3 text-sm text-base-content/80">
-                Jianhua.Art 是AI驱动的快速设计助理。轻松创作logo、动画、SVG，进行图片处理，比想象更简单。
+                FlexSVG 是AI驱动的快速设计助理。轻松创作logo、动画、SVG，进行图片处理，比想象更简单。
               </p>
               <p className="mt-3 text-sm text-base-content/60">
                 Copyright © 2024 - All rights reserved
@@ -233,7 +234,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                   <a href="#features" className="link link-hover">功能</a>
-                  <a href="mailto:support@jianhua.art" target="_blank" className="link link-hover" aria-label="联系支持">
+                  <a href="mailto:support@flexsvg.com" target="_blank" className="link link-hover" aria-label="联系支持">
                     支持
                   </a>
                   <a href="#pricing" className="link link-hover">价格</a>

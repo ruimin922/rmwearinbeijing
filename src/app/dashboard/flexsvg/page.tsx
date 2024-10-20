@@ -13,10 +13,13 @@ import Image from 'next/image'
 import Markdown from '@/components/Markdown'
 import { motion, AnimatePresence } from 'framer-motion'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import BotInput from '@/components/BotInput'
+import ChatHistory from '@/components/ChatHistory'
+import SVGPreviewList from '@/components/SVGPreviewList'
 
 // 常量和配置
 const MOBILE_BREAKPOINT = 640
-const DEFAULT_PNG_SIZE = 1000
+
 const BOTS = ['默认SVG', '思考者', 'LOGO设计', '卡通形象']
 
 interface Attachment {
@@ -30,7 +33,7 @@ function extractSvgFromMessage(content: string) {
   return content.match(/<svg[\s\S]*?<\/svg>/gi) || []
 }
 
-function GenerateSVGClient() {
+const GenerateSVGClient = () => {
   const { user } = useUser()
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/gen-svg',
@@ -53,7 +56,7 @@ function GenerateSVGClient() {
     showSVGPreview: false,
     isMobile: false,
     files: undefined as FileList | undefined,
-    selectedBot: 'default',
+    selectedBot: BOTS[0], // 初始化为第一个机器人
     isExpanded: false,
     processedSvgs: new Set<string>(),
   })
@@ -111,7 +114,8 @@ function GenerateSVGClient() {
     setState(prev => ({ ...prev, selectedBot: bot }))
   }, [])
 
-  const handleFileUpload = useCallback(() => {
+  const handleFileUpload = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
     if (refs.fileInput.current) {
       refs.fileInput.current.click()
     }
@@ -134,176 +138,32 @@ function GenerateSVGClient() {
     }
   }, [handleFormSubmit])
 
-  // 渲染函数
-  const renderUserMessage = useCallback((message: any) => (
-    <div key={message.id} className="flex justify-end mb-4">
-      <div className="flex flex-row-reverse items-start max-w-[80%]">
-        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-blue-500 ml-2">
-          <FaUser className="text-white" />
-        </div>
-        <div className="rounded-lg p-3 bg-blue-100">
-          <div className="max-w-full overflow-hidden">
-            <Markdown className="prose max-w-none text-left">{message.content}</Markdown>
-          </div>
-        </div>
-      </div>
-    </div>
-  ), [])
-
-  const renderBotMessage = useCallback((message: any) => (
-    <div key={message.id} className="flex justify-start mb-4">
-      <div className="flex flex-row items-start max-w-[80%]">
-        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-green-500 mr-2">
-          <FaRobot className="text-white" />
-        </div>
-        <div className="rounded-lg p-3 bg-green-100 overflow-hidden">
-          <div className="max-w-full overflow-hidden">
-            <Markdown className="prose max-w-none">{message.content}</Markdown>
-          </div>
-          <div>
-          {message?.experimental_attachments
-              ?.filter((attachment: Attachment) => attachment?.contentType?.startsWith('image/'))
-              .map((attachment: Attachment, index: number) => (
-                <Image
-                  key={`${message.id}-${index}`}
-                  src={attachment.url}
-                  width={500}
-                  height={500}
-                  alt={attachment.name ?? `attachment-${index}`}
-                />
-              ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  ), [])
-
-  const renderMessages = useCallback(() => (
-    messages.map(m => m.role === 'user' ? renderUserMessage(m) : renderBotMessage(m))
-  ), [messages, renderUserMessage, renderBotMessage])
-
-  const renderSvgPreviews = useCallback(() => (
-    <AnimatePresence>
-      {state.svgPreviews.map((svg, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5 }}
-          className="mb-2 mr-2 cursor-pointer"
-          onClick={() => handlePreviewClick(index)}
-        >
-          <div className="w-24 h-36 bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center">
-            <div dangerouslySetInnerHTML={{ __html: svg }} />
-          </div>
-        </motion.div>
-      ))}
-    </AnimatePresence>
-  ), [state.svgPreviews, handlePreviewClick])
-
   return (
     <div className="flex flex-col h-full">
       <main className="flex-1 overflow-hidden flex flex-col">
         <div className="container mx-auto px-8 py-4 w-full h-full flex flex-col">
-          <div className="text-primary-text flex-grow flex flex-col overflow-hidden mb-4">
-            <div className="flex-1 overflow-hidden">
-              <div className="h-full overflow-y-auto scrollbar-hide" ref={refs.markdown}>
-                {renderMessages()}
-                <div ref={refs.messagesEnd} />
-              </div>
-            </div>
+          <div className="flex-grow flex flex-col overflow-hidden mb-4">
+            <ChatHistory messages={messages} />
           </div>
 
-          <div className="flex flex-wrap">
-            {renderSvgPreviews()}
-          </div>
+          <SVGPreviewList svgPreviews={state.svgPreviews} handlePreviewClick={handlePreviewClick} />
 
-          <Card className="rounded-lg border bg-secondary-bg text-primary-text shadow-sm mt-auto">
+          <Card className="mt-auto">
             <CardContent className="p-4">
-              <form onSubmit={handleFormSubmit} className="flex flex-col">
-                <div className="flex justify-between mb-2 items-center">
-                  <div className="flex space-x-1">
-                    {BOTS.map((bot) => (
-                      <Button
-                        key={bot}
-                        onClick={() => handleBotSelection(bot)}
-                        className={`
-                          ${state.selectedBot === bot 
-                            ? 'bg-primary-button-bg text-primary-button-text' 
-                            : 'bg-transparent text-primary-button-text border border-primary-button-bg'
-                          } 
-                          px-2 py-0.5 rounded-full text-xs
-                          hover:bg-primary-button-hover-bg hover:text-primary-button-hover-text 
-                          hover:scale-95 transition-transform
-                          flex items-center h-6
-                        `}
-                      >
-                        <FaRobot className="mr-0.5 text-[10px]" />
-                        {bot}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="flex space-x-1">
-                    <Button 
-                      onClick={handleFileUpload} 
-                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
-                    >
-                      <FaPaperclip className="text-xs" />
-                    </Button>
-                    <Button 
-                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
-                    >
-                      <FaHistory className="text-xs" />
-                    </Button>
-                    <Button 
-                      className="bg-white text-gray-700 hover:bg-green-100 hover:scale-95 transition-transform p-1 rounded-full h-6 w-6 flex items-center justify-center"
-                    >
-                      <FaPlus className="text-xs" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="relative">
-                  <Textarea
-                    placeholder="描述你想要的 SVG 图像..."
-                    value={input}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    className={`flex-grow mb-2 border border-secondary-border rounded-lg transition-all duration-300 ${state.isExpanded ? 'h-[500px]' : 'h-[100px]'} resize-none`}
-                    disabled={state.isLoading}
-                  />
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    multiple
-                    ref={refs.fileInput}
-                  />
-                  <Button 
-                    onClick={toggleExpand}
-                    className="absolute bottom-2 right-12 p-2 rounded-md bg-white hover:bg-[#E8F5E9] text-[#39855E] transition-colors w-8 h-8 flex items-center justify-center mb-1"
-                  >
-                    {state.isExpanded ? <FaChevronDown className="h-4 w-4" /> : <FaChevronUp className="h-4 w-4" />}
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={isLoading || isAIResponding}
-                    className={`
-                      absolute bottom-2 right-2 p-2 rounded-md
-                      transition-colors w-8 h-8 flex items-center justify-center mb-1
-                      ${isLoading || isAIResponding
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-white hover:bg-[#E8F5E9] text-[#39855E]'
-                      }
-                    `}
-                  >
-                    {isLoading || isAIResponding ? 
-                      <Loader2 className="h-4 w-4 animate-spin" /> :
-                      <FaPaperPlane className="h-4 w-4" />
-                    }
-                  </Button>
-                </div>
-              </form>
+              <BotInput
+                input={input}
+                handleInputChange={handleInputChange}
+                handleFormSubmit={handleFormSubmit}
+                handleKeyDown={handleKeyDown}
+                isLoading={state.isLoading}
+                isAIResponding={isAIResponding}
+                isExpanded={state.isExpanded}
+                toggleExpand={toggleExpand}
+                handleFileUpload={handleFileUpload}
+                handleFileChange={handleFileChange}
+                handleBotSelection={handleBotSelection}
+                selectedBot={state.selectedBot}
+              />
             </CardContent>
           </Card>
         </div>

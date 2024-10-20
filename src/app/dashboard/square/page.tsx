@@ -45,7 +45,7 @@ export default function Dashboard() {
                   <div className="flex items-center space-x-2 mb-2">
                     <Link
                       href="#"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm hover:underline"
                     >
                       {app.author.name}
                     </Link>
@@ -54,11 +54,11 @@ export default function Dashboard() {
                       <AvatarFallback>{app.author.name[0]}</AvatarFallback>
                     </Avatar>
                   </div>
-                  <p className="text-sm text-gray-600">{app.description}</p>
+                  <p className="text-sm text-muted-foreground">{app.description}</p>
                 </div>
               </div>
             </CardContent>
-            <div className="bg-gray-50 px-4 py-2 flex justify-between items-center text-xs text-gray-500 mt-auto">
+            <div className="bg-muted px-4 py-2 flex justify-between items-center text-xs text-muted-foreground mt-auto">
               <span>{app.stats.views} 浏览</span>
               <span>{app.stats.likes} 喜欢</span>
               <span>{app.stats.comments} 评论</span>

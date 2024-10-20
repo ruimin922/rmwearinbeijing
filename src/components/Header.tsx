@@ -21,25 +21,25 @@ interface HeaderProps {
 function Header({
   navItems,
   position = 'sticky',
-  bgColor = 'bg-[#EEFDF4]',
-  textColor = 'text-[#1D1D35]',
+  bgColor = 'bg-white',
+  textColor = 'text-[#4A90E2]',
   logoSrc = '/logo.svg',
-  logoAlt = 'Jianhua.Art logo'
+  logoAlt = 'FlexSVG logo'
 }: HeaderProps) {
   return (
-    <header className={`${position} top-0 z-50 w-full border-b border-[#39855E]/10 ${bgColor}/95 backdrop-blur supports-[backdrop-filter]:${bgColor}/60`}>
+    <header className={`${position} top-0 z-50 w-full border-b border-flexsvg-blue/10 ${bgColor}/95 backdrop-blur supports-[backdrop-filter]:${bgColor}/60`}>
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <img src={logoSrc} alt={logoAlt} className="h-6 w-6" />
-            <span className={`hidden font-bold sm:inline-block text-[#39855E] ${textColor}`}>Jianhua.Art</span>
+            <span className={`hidden font-bold sm:inline-block ${textColor}`}>FlexSVG</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navItems.map((item) => (
               <Link 
                 key={item.href}
                 href={item.href}
-                className={`transition-colors hover:text-[#39855E] ${textColor}/60 ${item.isActive ? 'font-bold' : ''}`}
+                className={`transition-colors hover:text-flexsvg-green ${textColor}/60 ${item.isActive ? 'font-bold' : ''}`}
               >
                 {item.label}
               </Link>
@@ -52,7 +52,7 @@ function Header({
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button className="bg-[#39855E] hover:bg-[#39855E]/80 text-white">
+              <Button className="bg-gradient-to-r from-flexsvg-blue to-flexsvg-green hover:from-flexsvg-blue/80 hover:to-flexsvg-green/80 text-white">
                 Get started
               </Button>
             </SignInButton>

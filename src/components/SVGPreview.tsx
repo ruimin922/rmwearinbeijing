@@ -123,14 +123,16 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg flex flex-col w-full h-full sm:w-auto sm:h-auto" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-background p-4 rounded-lg flex flex-col w-full h-full sm:w-auto sm:h-auto" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
         <div className="flex justify-between items-center mb-4">
-          <h4 className="text-xl font-bold text-[#39855E]">预览</h4>
+          <h4 className="text-xl font-bold">预览</h4>
           <div className="flex items-center ml-6">
             <Button 
               onClick={handleDownloadSVG} 
-              className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+              variant="outline"
+              size="sm"
+              className="mr-2"
             >
               <FaDownload className="h-4 w-4 mr-1" />
               SVG
@@ -138,7 +140,9 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
             {!pngDataUrl && (
               <Button 
                 onClick={handleGeneratePNG} 
-                className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+                variant="outline"
+                size="sm"
+                className="mr-2"
               >
                 <FaDownload className="h-4 w-4 mr-1" />
                 PNG
@@ -148,14 +152,18 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
               <>
                 <Button 
                   onClick={handleDownloadPNG} 
-                  className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+                  variant="outline"
+                  size="sm"
+                  className="mr-2"
                 >
                   <FaDownload className="h-4 w-4 mr-1" />
                   PNG
                 </Button>
                 <Button 
                   onClick={handleCopyPNG} 
-                  className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform mr-2"
+                  variant="outline"
+                  size="sm"
+                  className="mr-2"
                 >
                   <FaCopy className="h-4 w-4 mr-1" />
                   PNG
@@ -164,7 +172,8 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
             )}
             <Button 
               onClick={onClose} 
-              className="bg-white text-[#39855E] hover:bg-green-100 hover:scale-95 transition-transform"
+              variant="outline"
+              size="sm"
             >
               <FaTimes className="h-4 w-4" />
             </Button>
@@ -176,7 +185,7 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
               <div dangerouslySetInnerHTML={{ __html: svgCode.replace(/<svg/, '<svg style="max-width: 100%; max-height: 100%;" preserveAspectRatio="xMidYMid meet"') }} />
             </div>
           ) : (
-            <div className="text-gray-500">等待生成 SVG...</div>
+            <div className="text-muted-foreground">等待生成 SVG...</div>
           )}
         </div>
       </div>

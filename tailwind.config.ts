@@ -11,7 +11,7 @@ const config = {
   prefix: "",
   theme: {
   	container: {
-  		center: 'true',
+  		center: true,
   		padding: '2rem',
   		screens: {
   			'2xl': '1400px'
@@ -27,22 +27,22 @@ const config = {
   			primary: {
   				DEFAULT: 'hsl(var(--primary))',
   				foreground: 'hsl(var(--primary-foreground))',
-  				bg: '#EEFDF4',
-  				text: '#1D1D35',
+  				bg: '#FFFFFF',
+  				text: '#4A90E2',
   				button: {
-  					bg: '#E8F5E9',
-  					text: '#39855E',
+  					bg: '#4A90E2',
+  					text: '#FFFFFF',
   					hover: {
-  						bg: '#C8E6C9',
-  						text: '#2E7D32'
+  						bg: '#50E3C2',
+  						text: '#FFFFFF'
   					}
   				}
   			},
   			secondary: {
   				DEFAULT: 'hsl(var(--secondary))',
   				foreground: 'hsl(var(--secondary-foreground))',
-  				bg: '#FFFFFF',
-  				border: '#E8F5E9'
+  				bg: '#F5F8FA',
+  				border: '#E6EEF3'
   			},
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
@@ -80,6 +80,11 @@ const config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			flexsvg: {
+  				blue: '#4A90E2',
+  				green: '#50E3C2',
+  				gradient: 'linear-gradient(135deg, #4A90E2 0%, #50E3C2 100%)'
   			}
   		},
   		borderRadius: {

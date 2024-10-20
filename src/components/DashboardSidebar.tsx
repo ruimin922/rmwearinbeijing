@@ -2,15 +2,17 @@
 
 import * as React from "react"
 import {
-  Calendar,
+  Paintbrush,
   Home,
-  Inbox,
-  Search,
+  Gauge,
+  LayoutDashboard,
   Settings,
   Map,
 } from "lucide-react"
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
+import { useTheme } from "next-themes"
 
 import {
   Sidebar,
@@ -24,7 +26,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // 菜单项
 const items = [
@@ -36,17 +45,17 @@ const items = [
   {
     title: "工作台",
     url: "/dashboard",
-    icon: Inbox,
+    icon: Gauge,
   },
   {
-    title: "创作",
-    url: "/dashboard/create",
-    icon: Calendar,
+    title: "设计",
+    url: "/dashboard/design",
+    icon: Paintbrush,
   },
   {
     title: "生成",
     url: "/dashboard/flexsvg",
-    icon: Search,
+    icon: LayoutDashboard,
   },
   {
     title: "广场",
@@ -59,6 +68,33 @@ const items = [
     icon: Settings,
   },
 ]
+
+const ModeToggle = () => {
+  const { setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <SunIcon className="h-[1rem] w-[1rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <MoonIcon className="absolute h-[1rem] w-[1rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export function AppSidebar() {
   const { user } = useUser();
@@ -78,19 +114,20 @@ export function AppSidebar() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  Jianhua.Art
+                  FlexSVG
                 </span>
                 <span className="truncate text-xs">
-                  随心所欲，设计无界
+                  Design it Now
                 </span>
               </div>
+              <ModeToggle />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>应用</SidebarGroupLabel>
+          <SidebarGroupLabel>导航</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
