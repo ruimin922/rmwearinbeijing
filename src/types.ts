@@ -1,8 +1,8 @@
-export interface Attachment {
+export type Attachment = {
   contentType?: string;
   url: string;
   name?: string;
-}
+};
 
 export interface Message {
   id: string

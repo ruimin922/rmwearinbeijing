@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
-import { FaTimes, FaDownload, FaCopy } from 'react-icons/fa'
+import { FaDownload, FaCopy } from 'react-icons/fa'
 import { toast } from 'react-hot-toast'
 import { useUser } from '@clerk/nextjs'
 
@@ -12,20 +12,35 @@ interface SVGPreviewProps {
 export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
   const [pngDataUrl, setPngDataUrl] = useState<string | null>(null)
   const { user } = useUser()
+  const svgContainerRef = useRef<HTMLDivElement>(null)
+  const [svgDimensions, setSvgDimensions] = useState<{ width: number; height: number } | null>(null)
 
-  const getUserName = () => {
-    return user?.firstName || user?.username || 'GLBai'
-  }
+  useEffect(() => {
+    if (svgCode && svgContainerRef.current) {
+      const parser = new DOMParser()
+      const svgDoc = parser.parseFromString(svgCode, 'image/svg+xml')
+      const svgElement = svgDoc.documentElement
+
+      const viewBox = svgElement.getAttribute('viewBox')
+      const width = svgElement.getAttribute('width')
+      const height = svgElement.getAttribute('height')
+
+      let dimensions = { width: 0, height: 0 }
+
+      if (viewBox) {
+        const [, , vbWidth, vbHeight] = viewBox.split(' ').map(Number)
+        dimensions = { width: vbWidth, height: vbHeight }
+      } else if (width && height) {
+        dimensions = { width: parseFloat(width), height: parseFloat(height) }
+      }
+
+      setSvgDimensions(dimensions)
+    }
+  }, [svgCode])
 
   const handleDownloadSVG = () => {
     try {
-      // 添加水印
-      const watermarkedSVG = svgCode.replace(
-        '</svg>',
-        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@${getUserName()}</text></svg>`
-      )
-      
-      const blob = new Blob([watermarkedSVG], { type: 'image/svg+xml' })
+      const blob = new Blob([svgCode], { type: 'image/svg+xml' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -42,13 +57,8 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
 
   const handleGeneratePNG = () => {
     try {
-      // 添加水印
-      const watermarkedSVG = svgCode.replace(
-        '</svg>',
-        `<text x="10" y="95%" font-family="Arial Black, sans-serif" font-size="12" fill="#999">FlexSVG.com@${getUserName()}</text></svg>`
-      )
       const parser = new DOMParser()
-      const svgDoc = parser.parseFromString(watermarkedSVG, 'image/svg+xml')
+      const svgDoc = parser.parseFromString(svgCode, 'image/svg+xml')
       const svgElement = svgDoc.documentElement
 
       const svgWidth = svgElement.getAttribute('width')
@@ -82,7 +92,7 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
           setPngDataUrl(dataUrl)
           toast.success('PNG 已生成')
         }
-        img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(watermarkedSVG)))}`
+        img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgCode)))}`
       }
     } catch (error) {
       toast.error('生成 PNG 失败')
@@ -123,23 +133,33 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-background p-4 rounded-lg flex flex-col w-full h-full sm:w-auto sm:h-auto" style={{ maxWidth: '90vw', maxHeight: '90vh' }}>
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="text-xl font-bold">预览</h4>
-          <div className="flex items-center ml-6">
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="text-xl font-bold">详细预览</h4>
+        <div className="flex items-center">
+          <Button 
+            onClick={handleDownloadSVG} 
+            variant="outline"
+            size="sm"
+            className="mr-2"
+          >
+            <FaDownload className="h-4 w-4 mr-1" />
+            SVG
+          </Button>
+          {!pngDataUrl ? (
             <Button 
-              onClick={handleDownloadSVG} 
+              onClick={handleGeneratePNG} 
               variant="outline"
               size="sm"
               className="mr-2"
             >
               <FaDownload className="h-4 w-4 mr-1" />
-              SVG
+              PNG
             </Button>
-            {!pngDataUrl && (
+          ) : (
+            <>
               <Button 
-                onClick={handleGeneratePNG} 
+                onClick={handleDownloadPNG} 
                 variant="outline"
                 size="sm"
                 className="mr-2"
@@ -147,47 +167,43 @@ export function SVGPreview({ svgCode, onClose }: SVGPreviewProps) {
                 <FaDownload className="h-4 w-4 mr-1" />
                 PNG
               </Button>
-            )}
-            {pngDataUrl && (
-              <>
-                <Button 
-                  onClick={handleDownloadPNG} 
-                  variant="outline"
-                  size="sm"
-                  className="mr-2"
-                >
-                  <FaDownload className="h-4 w-4 mr-1" />
-                  PNG
-                </Button>
-                <Button 
-                  onClick={handleCopyPNG} 
-                  variant="outline"
-                  size="sm"
-                  className="mr-2"
-                >
-                  <FaCopy className="h-4 w-4 mr-1" />
-                  PNG
-                </Button>
-              </>
-            )}
-            <Button 
-              onClick={onClose} 
-              variant="outline"
-              size="sm"
-            >
-              <FaTimes className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex-grow overflow-auto">
-          {svgCode ? (
-            <div className="flex items-center justify-center h-full">
-              <div dangerouslySetInnerHTML={{ __html: svgCode.replace(/<svg/, '<svg style="max-width: 100%; max-height: 100%;" preserveAspectRatio="xMidYMid meet"') }} />
-            </div>
-          ) : (
-            <div className="text-muted-foreground">等待生成 SVG...</div>
+              <Button 
+                onClick={handleCopyPNG} 
+                variant="outline"
+                size="sm"
+                className="mr-2"
+              >
+                <FaCopy className="h-4 w-4 mr-1" />
+                PNG
+              </Button>
+            </>
           )}
         </div>
+      </div>
+      <div className="bg-white p-4 rounded-lg shadow-inner flex justify-center items-center">
+        {svgCode ? (
+          <div 
+            ref={svgContainerRef}
+            className="w-full flex justify-center"
+            style={{ 
+              height: svgDimensions ? `${svgDimensions.height}px` : 'auto',
+              maxWidth: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <div 
+              dangerouslySetInnerHTML={{ 
+                __html: svgCode.replace(
+                  /<svg/, 
+                  '<svg style="width: auto; height: 100%;" preserveAspectRatio="xMidYMid meet"'
+                ) 
+              }} 
+              className="h-full"
+            />
+          </div>
+        ) : (
+          <div className="text-muted-foreground">等待生成 SVG...</div>
+        )}
       </div>
     </div>
   )

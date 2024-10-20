@@ -53,8 +53,8 @@ const items = [
     icon: Paintbrush,
   },
   {
-    title: "生成",
-    url: "/dashboard/flexsvg",
+    title: "应用",
+    url: "/dashboard/bots",
     icon: LayoutDashboard,
   },
   {

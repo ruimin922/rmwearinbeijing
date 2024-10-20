@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={zhCN}
     >
-      <html lang="zh-CN" className="h-full">
+      <html lang="zh-CN" className="h-full" suppressHydrationWarning>
         <body className={`${inter.className} h-full`}>
           {children}
         </body>
