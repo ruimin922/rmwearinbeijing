@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Settings,
   Map,
+  Store,
 } from "lucide-react"
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -38,7 +39,7 @@ import {
 // 菜单项
 const items = [
   {
-    title: "首页",
+    title: "主页",
     url: "/",
     icon: Home,
   },
@@ -46,6 +47,11 @@ const items = [
     title: "工作台",
     url: "/dashboard",
     icon: Gauge,
+  },
+  {
+    title: "商店",
+    url: "/dashboard/store",
+    icon: Store,
   },
   {
     title: "设计",
@@ -56,11 +62,6 @@ const items = [
     title: "应用",
     url: "/dashboard/bots",
     icon: LayoutDashboard,
-  },
-  {
-    title: "广场",
-    url: "/dashboard/square",
-    icon: Map,
   },
   {
     title: "设置",
