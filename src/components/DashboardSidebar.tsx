@@ -7,7 +7,6 @@ import {
   Gauge,
   LayoutDashboard,
   Settings,
-  Map,
   Store,
 } from "lucide-react"
 import { usePathname } from 'next/navigation'
@@ -29,7 +28,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { UserButton, useUser } from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +49,11 @@ const items = [
     icon: Gauge,
   },
   {
+    title: "创意",
+    url: "/dashboard/creative",
+    icon: LayoutDashboard,
+  },
+  {
     title: "商店",
     url: "/dashboard/store",
     icon: Store,
@@ -58,11 +62,6 @@ const items = [
     title: "设计",
     url: "/dashboard/design",
     icon: Paintbrush,
-  },
-  {
-    title: "应用",
-    url: "/dashboard/bots",
-    icon: LayoutDashboard,
   },
   {
     title: "设置",

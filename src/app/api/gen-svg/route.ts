@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const { messages } = await req.json()
   console.log('收到 POST 请求')
   const result = await streamText({
-    model: openai('claude-3-5-sonnet-20240620'),
+    model: openai('claude-3-5-sonnet-latest'),
     system: '你是一个 SVG 设计师，请根据用户的需求生成 SVG 代码。',
     messages: convertToCoreMessages(messages),
   });
