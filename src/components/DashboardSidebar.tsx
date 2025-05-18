@@ -49,11 +49,6 @@ const items = [
     icon: Gauge,
   },
   {
-    title: "创意",
-    url: "/dashboard/creative",
-    icon: LayoutDashboard,
-  },
-  {
     title: "商店",
     url: "/dashboard/store",
     icon: Store,
