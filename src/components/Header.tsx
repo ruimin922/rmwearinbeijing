@@ -55,7 +55,11 @@ function Header({
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <Button className="bg-gradient-to-r from-flexsvg-blue to-flexsvg-green hover:from-flexsvg-blue/80 hover:to-flexsvg-green/80 text-white">
+              <Button
+                className="px-6 py-2 rounded-lg bg-neutral-800 text-white font-semibold hover:bg-neutral-700 transition-colors"
+                aria-label="Get started"
+                tabIndex={0}
+              >
                 Get started
               </Button>
             </SignInButton>
