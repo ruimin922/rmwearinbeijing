@@ -85,7 +85,9 @@ const config = {
   				blue: '#4A90E2',
   				green: '#50E3C2',
   				gradient: 'linear-gradient(135deg, #4A90E2 0%, #50E3C2 100%)'
-  			}
+  			},
+  			'muji-red': '#a6192e',
+  			'muji-dark': '#333',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

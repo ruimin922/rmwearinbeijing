@@ -7,8 +7,8 @@ import { zhCN } from '@clerk/localizations'
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "FlexSVG - AI驱动的快速设计助理",
-  description: "FlexSVG 是AI驱动的快速设计助理。轻松创作logo、动画、SVG，进行图片处理，比想象更简单。",
+  title: "WearInBeijing - AI驱动的智能穿搭助手",
+  description: "WearInBeijing 是AI驱动的智能穿搭助手。根据实时天气和您的衣柜，为您推荐最适合的穿搭方案。",
 }
 
 export default function RootLayout({

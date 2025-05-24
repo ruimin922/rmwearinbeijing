@@ -49,9 +49,9 @@ const items = [
     icon: Gauge,
   },
   {
-    title: "商店",
-    url: "/dashboard/store",
-    icon: Store,
+    title: "我的衣柜",
+    url: "/dashboard/wardrobe",
+    icon: LayoutDashboard,
   },
   {
     title: "设计",
@@ -106,14 +106,14 @@ export function AppSidebar() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
-                <img src="/logo.svg" alt="Jianhua.Art Logo" className="w-full h-full object-contain" />
+                <LayoutDashboard className="w-7 h-7" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  FlexSVG
+                  WearInBeijing
                 </span>
                 <span className="truncate text-xs">
-                  Design it Now
+                  智能穿搭推荐
                 </span>
               </div>
             </SidebarMenuButton>
