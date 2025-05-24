@@ -36,7 +36,11 @@ export default function HomePage() {
               WearInBeijing 根据实时天气和您的衣柜，为您推荐最适合的穿搭方案。告别穿搭困扰，轻松应对多变天气（特别是在北京）。
             </p>
             <Link href="/dashboard">
-              <Button className="text-lg px-8 py-6 bg-[#a6192e] hover:bg-[#8e1626] text-white rounded">
+              <Button
+                className="text-lg px-8 py-6 bg-neutral-800 hover:bg-neutral-700 text-white rounded transition-colors"
+                aria-label="开始搭配"
+                tabIndex={0}
+              >
                 开始搭配 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -92,7 +96,11 @@ export default function HomePage() {
             </p>
             <div className="max-w-screen-lg mx-auto">
               <AspectRatio ratio={3} className="rounded-xl overflow-hidden">
-                <img src="/solve.jpg" alt="极简风格展示" className="object-cover w-full h-full dark:brightness-75" />
+                <img
+                  src="/solve.jpg"
+                  alt="极简风格展示"
+                  className="object-cover w-full h-full dark:brightness-75 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:brightness-105"
+                />
               </AspectRatio>
             </div>
             <p className="text-lg font-semibold mt-24">
