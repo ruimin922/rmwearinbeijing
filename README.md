@@ -10,8 +10,8 @@ WearInBeijing 是一款基于 Next.js、TailwindCSS、Supabase、Clerk、Qwen/Op
 - **前端**：Next.js 14 + React 18 + TypeScript + TailwindCSS
 - **UI/UX**：极简低饱和度配色，无蓝色、无渐变，全部使用 TailwindCSS
 - **后端/数据库**：Supabase（Postgres）
-- **用户认证**：Clerk（支持邮箱、Google、GitHub等第三方登录）
-- **AI 推荐**：Qwen/OpenAI API
+- **用户认证**：Clerk（支持邮箱、Google、GitHub 登录）
+- **AI 推荐**：Qwen（通义千问）/OpenAI API，支持流式输出
 - **图片存储**：Supabase Storage
 - **云部署**：Vercel
 
@@ -20,11 +20,10 @@ WearInBeijing 是一款基于 Next.js、TailwindCSS、Supabase、Clerk、Qwen/Op
 ## 主要功能
 - 实时天气展示
 - 衣柜管理（增/查/删/改，图片上传，标签、季节、分类管理）
-- 智能穿搭推荐（结合天气、衣柜、AI 大模型，输出祝福语+搭配建议+衣柜图片）
+- 智能穿搭推荐（结合天气、衣柜、AI 大模型，流式输出祝福语+搭配建议+衣柜图片）
 - Markdown 渲染推荐内容，图片可直接展示
-- 用户数据隔离（Clerk 账号绑定 Supabase 数据，支持 GitHub 登录）
+- 用户数据隔离（Clerk 账号绑定 Supabase 数据）
 - 极简风格 UI，所有按钮、图片 hover 动效统一
-- 智能穿搭推荐已支持 Qwen 大模型流式输出，推荐内容边生成边展示，体验更丝滑
 
 ---
 
@@ -43,15 +42,29 @@ npm install
 
 ### 3. 配置环境变量
 在根目录新建 `.env.local`，参考：
+
 ```env
-OPENAI_API_KEY=你的OpenAI密钥
+# Clerk 配置
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=你的Clerk前端Key（pk_开头，来自你自己的Clerk项目）
+CLERK_SECRET_KEY=你的Clerk后端Key（sk_开头，来自你自己的Clerk项目）
+CLERK_WEBHOOK_SECRET=你的Clerk Webhook Secret（如有）
+
+# Supabase 配置
 NEXT_PUBLIC_SUPABASE_URL=你的Supabase项目URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=你的Supabase匿名Key
-CLERK_SECRET_KEY=你的Clerk后端Key（必须与自己Clerk项目一致）
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=你的Clerk前端Key（必须与自己Clerk项目一致）
-DATABASE_URL=你的数据库连接串（如用到Prisma）
-# 其他如 OPENAI_BASE_URL、OPENAI_MODEL、CLERK_WEBHOOK_SECRET 等
+
+# Qwen/OpenAI 配置
+QWEN_API_KEY=你的Qwen API Key
+OPENAI_API_KEY=你的OpenAI密钥（如用OpenAI）
+
+# 其他
+OPENAI_BASE_URL=你的大模型API地址（如用OpenAI代理）
+OPENAI_MODEL=你的大模型名称
 ```
+
+> **注意：**  
+> - 环境变量必须和你自己的 Clerk 项目一致，不能用别人的 key！
+> - 线上部署（如 Vercel）也要在环境变量中配置自己的 Clerk key。
 
 ### 4. 本地开发
 ```bash
@@ -68,41 +81,33 @@ npm start
 ---
 
 ## 云端部署（Vercel）
-1. 绑定 GitHub 仓库，自动化部署
-2. 在 Vercel 项目 Settings → Environment Variables 补全所有环境变量
-3. 推送代码到 main 分支，Vercel 自动构建上线
-4. 每次 push 自动触发部署
+
+1. 在 Vercel 项目设置中，添加所有环境变量（见上文）。
+2. 确保 `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` 和 `CLERK_SECRET_KEY` 都是你自己的 Clerk 项目 key。
+3. 保存后 Redeploy 项目。
 
 ---
 
-## 设计与交互说明
-- 所有按钮、图片 hover 动效统一为极简风格（深灰色按钮、图片轻微放大+阴影+变亮）
-- 禁用蓝色、渐变色，主色为 neutral/stone/zinc 系列
-- 响应式布局，适配移动端和桌面端
-- 重点交互区（如"开始搭配"按钮、Header 登录按钮）均已优化为极简风
+## 社交登录（GitHub/Google）
+
+- 在 Clerk 控制台的 SSO connections 中启用 GitHub、Google 登录。
+- 启用后，登录界面会自动显示 GitHub/Google 登录按钮。
 
 ---
 
-## 常见问题排查
-- **图片无法显示**：检查 Supabase Storage 权限、image_url 字段是否为可访问链接
-- **AI 推荐报错**：确认 OPENAI_API_KEY、OPENAI_BASE_URL、OPENAI_MODEL 等环境变量已配置
-- **Prisma 报错**：确保 `prisma` 已安装为 devDependency，`postinstall` 脚本有 `prisma generate`，`DATABASE_URL` 正确
-- **Vercel 环境变量丢失**：每个项目、每个 Team 独立配置，需在 Settings → Environment Variables 补全
-- **推送不触发部署**：确认 push 到 Vercel 绑定的仓库和分支（通常是 main）
+## Qwen 流式推荐
+
+- 推荐接口 `/api/recommend` 支持流式输出，前端边生成边渲染，体验丝滑。
+- 你可以在 dashboard 页面输入"今天穿什么"等 query，体验 AI 智能推荐。
 
 ---
 
 ## 贡献与反馈
-如有建议、Bug 或需求，欢迎提 Issue 或 PR。
+
+欢迎 issue、PR 或邮件联系作者！
 
 ---
 
 ## License
+
 MIT
-
-## 第三方登录说明
-- 登录/注册支持邮箱、Google、GitHub 等多种方式。
-- 如需开启 GitHub 登录：请在 Clerk 控制台 > SSO connections > Add connection 选择 GitHub 并按提示配置。
-
-## 智能推荐流式体验
-- 智能穿搭推荐基于 Qwen 大模型，已实现流式输出，推荐内容会逐字/逐句实时显示，提升交互体验。
