@@ -126,11 +126,25 @@ const Dashboard = () => {
           wardrobe: wardrobeItems,
         }),
       });
-      const data = await res.json();
-      if (data.result) setRecommendation(data.result);
-      else setRecoError(data.error || "未能生成推荐结果");
+      if (!res.body) throw new Error("无响应体");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+      let text = "";
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          text += chunk;
+          setRecommendation(text);
+          if (chunk.trim()) setRecoError("");
+          console.log("流式接收内容：", chunk);
+        }
+      }
     } catch (err: any) {
       setRecoError("推荐失败");
+      console.error("推荐失败详细错误：", err);
     } finally {
       setRecoLoading(false);
     }
@@ -233,12 +247,12 @@ const Dashboard = () => {
           disabled={recoLoading}
         />
         {recoLoading && <div className="text-gray-400 text-sm">正在生成推荐...</div>}
-        {recoError && <div className="text-red-500 text-sm">{recoError}</div>}
-        {recommendation && (
-          <div className="w-full bg-white border border-gray-100 rounded-lg p-4 text-gray-800 text-base mt-2 shadow-sm">
-            <Markdown>{recommendation}</Markdown>
-          </div>
-        )}
+        {recommendation
+          ? <div className="w-full bg-white border border-gray-100 rounded-lg p-4 text-gray-800 text-base mt-2 shadow-sm">
+              <Markdown>{recommendation}</Markdown>
+            </div>
+          : recoError && <div className="text-red-500 text-sm">{recoError}</div>
+        }
       </div>
     </div>
   );
